@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from extensions import db, jwt
 from auth import auth_bp
 from users import user_bp
+from models import User
 
 def create_app():
     app = Flask(__name__)
@@ -17,11 +18,27 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(user_bp, url_prefix='/users')
 
+
+
+    # Load user
+    @jwt.user_lookup_loader
+    def user_lookup_callback(__jwt_headers, jwt_data):
+        identity = jwt_data['sub']
+
+        return User.get_user_by_email(email = identity)
+
+
+
+
     #additional claims
 
     @jwt.additional_claims_loader
     def make_additional_claims(identity):
-        pass
+        
+        if identity == "ksjune13@gmail.com":
+            return {"is_librarian":True}
+        
+        return {"is_librarian":False}
 
 
 

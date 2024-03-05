@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt
 from models import User
 from schemas import UserSchema
 
@@ -12,6 +12,12 @@ user_bp = Blueprint(
 @user_bp.get('/all')
 @jwt_required()
 def get_all_users():
+
+    claims = get_jwt()
+    if claims.get("is_librarian") is False:
+        return jsonify({"message":"Unauthorized access"}), 401
+    
+    
     page = request.args.get('page', default=1, type=int)
     per_page = request.args.get('per_page', default=3, type=int)
 
