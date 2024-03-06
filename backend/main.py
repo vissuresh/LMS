@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 from extensions import db, jwt, migrate
 from auth import auth_bp
 from users import user_bp
-from models import User
+from models import User, TokenBlocklist
 
 def create_app():
     app = Flask(__name__)
@@ -70,13 +70,30 @@ def create_app():
             "error" : "authorization_header"
         }), 401
     
+
+    @jwt.revoked_token_loader
+    def revoked_token_callback(jwt_header, jwt_data):
+        return jsonify({
+            "message" : "Token has been revoked",
+            "error" : "revoked_token"
+        }), 401
+    
     ### End JWT Error Handlers
 
 
 
+    # Check if token blocklisted handler
+
     @jwt.token_in_blocklist_loader
-    def token_in_blocklist_callback(error):
-        pass
+    def token_in_blocklist_callback(jwt_header, jwt_data):
+
+        print("------ CHECKING BLOCKLIST TOKENS ------")
+        
+        jti = jwt_data['jti']
+        token = db.session.execute(db.select(TokenBlocklist).filter_by(jti = jti)).scalar()
+        
+        return token is not None
+
 
 
     return app
