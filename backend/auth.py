@@ -9,6 +9,10 @@ from flask_jwt_extended import (create_access_token,
 
 auth_bp = Blueprint('auth', __name__)
 
+
+# where is current_user maintained? Any Session table?
+
+
 @auth_bp.post('/register')
 def register_user():
 

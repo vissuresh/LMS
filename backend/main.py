@@ -1,5 +1,5 @@
 from flask import Flask, jsonify
-from extensions import db, jwt
+from extensions import db, jwt, migrate
 from auth import auth_bp
 from users import user_bp
 from models import User
@@ -13,6 +13,7 @@ def create_app():
     # Initialize extensions
     db.init_app(app)
     jwt.init_app(app)
+    migrate.init_app(app=app, db=db)
 
     # Register blueprints
     app.register_blueprint(auth_bp, url_prefix='/auth')
@@ -70,6 +71,12 @@ def create_app():
         }), 401
     
     ### End JWT Error Handlers
+
+
+
+    @jwt.token_in_blocklist_loader
+    def token_in_blocklist_callback(error):
+        pass
 
 
     return app
