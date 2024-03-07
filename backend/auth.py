@@ -84,12 +84,14 @@ def refresh_access():
 
 
 @auth_bp.get('/logout')
-@jwt_required(verify_type=False)
+@jwt_required(refresh = True)
 def logout_user():
     jwt = get_jwt()
 
     jti = jwt['jti']
+
     token_type = jwt['type']
+    # Only refresh token. Can safely remove above line.
 
     token_block = TokenBlocklist(jti = jti)
     token_block.save()

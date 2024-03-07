@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
 class User(db.Model):
-    __tablename__ = 'users'
+    __tablename__ = 'user'
     id = db.Column(db.String(), primary_key = True, default = lambda: str(uuid4()))
     email = db.Column(db.String(), nullable = False, unique = True)
     password_hash = db.Column(db.String(128), nullable = False)
@@ -33,7 +33,7 @@ class User(db.Model):
 
 
 class Librarian(db.Model):
-    user_id = db.Column(db.String(), db.ForeignKey('users.id'),  primary_key = True)
+    user_id = db.Column(db.String(), db.ForeignKey('user.id'),  primary_key = True)
 
 
 
