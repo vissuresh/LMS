@@ -1,8 +1,7 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt
 from models import User
 from schemas import UserSchema
-from decorators import check_librarian
+from application import check_librarian
 
 user_bp = Blueprint(
     'users',

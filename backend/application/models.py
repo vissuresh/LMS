@@ -1,4 +1,4 @@
-from extensions import db
+from application import db
 from uuid import uuid4
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
@@ -81,7 +81,7 @@ class Book(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(64), nullable = False)
     author = db.Column(db.String(64), nullable = False)
-    section_id   = db.Column(db.Integer, db.ForeignKey('section.id'))
+    section_id = db.Column(db.Integer, db.ForeignKey('section.id'))
 
     copies = db.Column(db.Integer, nullable = False)
     issued = db.Column(db.Integer, nullable = False, default = 0)

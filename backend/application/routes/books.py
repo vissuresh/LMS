@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt
 from models import Book
 from schemas import BookSchema
-from decorators import check_librarian
+from application import check_librarian
 
 book_bp = Blueprint(
     'books',
@@ -54,3 +54,4 @@ def get_book(book_id):
 @check_librarian
 def create_book():
     new_book = BookSchema().load(request.json)
+    return jsonify({"message": "success"}), 201
