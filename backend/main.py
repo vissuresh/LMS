@@ -1,7 +1,9 @@
 from flask import Flask, jsonify
-from extensions import db, jwt, migrate
+from extensions import db, jwt, migrate, ma
 from auth import auth_bp
 from users import user_bp
+from books import book_bp
+from sections import section_bp
 from models import User, TokenBlocklist
 
 def create_app():
@@ -13,11 +15,14 @@ def create_app():
     # Initialize extensions
     db.init_app(app)
     jwt.init_app(app)
-    migrate.init_app(app=app, db=db)
+    migrate.init_app(app, db)
+    ma.init_app(app)
 
     # Register blueprints
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(user_bp, url_prefix='/users')
+    app.register_blueprint(book_bp, url_prefix='/books')
+    app.register_blueprint(section_bp, url_prefix='/sections')
 
 
 
