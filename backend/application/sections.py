@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
-from models import Section
-from schemas import SectionSchema
+from application.models import Section
+from application.schemas import SectionSchema
 
 section_bp = Blueprint(
     'sections',

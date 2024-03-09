@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
-from models import User
-from schemas import UserSchema
-from application import check_librarian
+from application.models import User
+from application.schemas import UserSchema
+from application.validation import check_librarian
 
 user_bp = Blueprint(
     'users',

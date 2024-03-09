@@ -1,6 +1,5 @@
-from extensions import db
-from application import ma
-from models import User, Book, Section
+from application import db, ma
+from application.models import User, Book, Section
 
 class UserSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -15,10 +14,10 @@ class UserSchema(ma.SQLAlchemySchema):
 class BookSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Book
-        sqla_session = db.session
+        load_instance = True
         include_fk = True
-
-    path = ma.auto_field(required=False)
+        
+    id = ma.auto_field(dump_only = True)
 
 
 

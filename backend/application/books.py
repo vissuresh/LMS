@@ -1,13 +1,14 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt
-from models import Book
-from schemas import BookSchema
-from application import check_librarian
+from application.models import Book
+from application.schemas import BookSchema
+from application.validation import check_librarian
+from application import db
 
 book_bp = Blueprint(
     'books',
     __name__
-)
+)cd ..
 
 
 @book_bp.get('/all')
@@ -53,5 +54,6 @@ def get_book(book_id):
 @book_bp.post('/')
 @check_librarian
 def create_book():
-    new_book = BookSchema().load(request.json)
+    new_book = BookSchema().load(request.json, session=db.session)
+    new_book.save()
     return jsonify({"message": "success"}), 201
