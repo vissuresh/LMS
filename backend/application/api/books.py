@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt
+from flask_jwt_extended import jwt_required
 from application.models import Book
 from application.schemas import BookSchema
 from application.validation import check_librarian
@@ -8,7 +8,7 @@ from application import db
 book_bp = Blueprint(
     'books',
     __name__
-)cd ..
+)
 
 
 @book_bp.get('/all')
@@ -56,4 +56,25 @@ def get_book(book_id):
 def create_book():
     new_book = BookSchema().load(request.json, session=db.session)
     new_book.save()
-    return jsonify({"message": "success"}), 201
+    return jsonify({"message": "Book created successfully"}), 201
+
+
+
+@book_bp.patch('/<int:book_id>')
+@check_librarian
+def update_book(book_id):
+    book_instance = Book.query.get_or_404(book_id)
+    book_schema = BookSchema().load(request.json, instance=book_instance, partial = True)
+    
+    book_schema.save()
+    return jsonify({"message": "Book edited successfully"}), 200
+
+
+
+@book_bp.delete('/<int:book_id>')
+@check_librarian
+def delete_book(book_id):
+    book = Book.query.get_or_404(book_id)
+    book.delete()
+
+    return jsonify({"message": "Book deleted successfully"}), 200

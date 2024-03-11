@@ -1,9 +1,9 @@
 from application import app
 
-from application.auth import auth_bp
-from application.users import user_bp
-from application.books import book_bp
-from application.sections import section_bp
+from application.api.auth import auth_bp
+from application.api.users import user_bp
+from application.api.books import book_bp
+from application.api.sections import section_bp
 
 
 
