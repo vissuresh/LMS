@@ -56,18 +56,18 @@ def get_book(book_id):
 def create_book():
     new_book = BookSchema().load(request.json, session=db.session)
     new_book.save()
-    return jsonify({"message": "Book created successfully"}), 201
+    return jsonify({"message": "success"}), 201
 
 
 
 @book_bp.patch('/<int:book_id>')
 @check_librarian
 def update_book(book_id):
-    book_instance = Book.query.get_or_404(book_id)
-    book_schema = BookSchema().load(request.json, instance=book_instance, partial = True)
+    book = Book.query.get_or_404(book_id)
+    BookSchema().load(request.json, instance=book, session=db.session, partial=True)
+    book.save()
     
-    book_schema.save()
-    return jsonify({"message": "Book edited successfully"}), 200
+    return jsonify({"message":"success"}), 200
 
 
 
@@ -77,4 +77,4 @@ def delete_book(book_id):
     book = Book.query.get_or_404(book_id)
     book.delete()
 
-    return jsonify({"message": "Book deleted successfully"}), 200
+    return jsonify({"message":"success"}), 200

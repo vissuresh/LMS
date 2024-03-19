@@ -1,5 +1,5 @@
 from application import db, ma
-from application.models import User, Book, Section
+from application.models import User, Book, Section, BookIssue
 
 class UserSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -24,5 +24,22 @@ class BookSchema(ma.SQLAlchemyAutoSchema):
 class SectionSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Section
+        load_instance = True
+        include_fk = True
+
+    id = ma.auto_field(dump_only = True)
+    date_created = ma.auto_field(dump_only = True)
+
+
+
+
+class IssueSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = BookIssue
+        include_fk = True
+        include_relationships = True
+        load_instance = True
 
     
+    id = ma.auto_field(dump_only = True)
+    issued_at = ma.auto_field(dump_only = True)

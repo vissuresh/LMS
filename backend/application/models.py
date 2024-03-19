@@ -2,6 +2,7 @@ from application import db
 from uuid import uuid4
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from sqlalchemy import CheckConstraint
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -89,6 +90,11 @@ class Book(db.Model):
 
     section = db.relationship('Section', backref='books')
 
+    __table_args__ = (
+        CheckConstraint('issued <= copies', name='check_book_available_constraint'),
+    )
+
+
     def save(self):
         db.session.add(self)
         db.session.commit()
@@ -106,7 +112,7 @@ class BookIssue(db.Model):
     issued_at = db.Column(db.DateTime(), nullable = False, default = datetime.utcnow)
     expiry = db.Column(db.DateTime(), nullable = False)
 
-    user = db.relationship('User', backref='books')
+    user = db.relationship('User', backref='issues')
     book = db.relationship('Book', backref='issues')
 
 
