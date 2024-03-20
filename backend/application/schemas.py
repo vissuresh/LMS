@@ -1,5 +1,5 @@
 from application import db, ma
-from application.models import User, Book, Section, BookIssue
+from application.models import User, Book, Section, BookIssue, BookRequest
 
 class UserSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -43,3 +43,17 @@ class IssueSchema(ma.SQLAlchemyAutoSchema):
     
     id = ma.auto_field(dump_only = True)
     issued_at = ma.auto_field(dump_only = True)
+
+
+
+
+
+
+class RequestSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = BookRequest
+        include_fk = True
+        include_relationships = True
+        load_instance = True
+
+    id = ma.auto_field(dump_only = True)

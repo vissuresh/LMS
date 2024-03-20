@@ -123,3 +123,22 @@ class BookIssue(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
+
+
+
+class BookRequest(db.Model):
+    id = db.Column(db.Integer, primary_key = True, autoincrement = True)
+    user_id = db.Column(db.String(), db.ForeignKey('user.id'))
+    book_id = db.Column(db.Integer, db.ForeignKey('book.id'))
+
+    user = db.relationship('User', backref='requests')
+    book = db.relationship('Book', backref='requests')
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()

@@ -1,8 +1,8 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, current_user
 
 from application.models import BookIssue, User, Book
-from application.schemas import IssueSchema
+from application.schemas import IssueSchema, RequestSchema
 from application.validation import check_librarian
 from application import db
 
@@ -49,7 +49,7 @@ def issue_book():
         return jsonify({
             "error": "Forbidden",
             "message": "User has equalled the limit to borrow."
-        })
+        }), 403
     
     book = Book.query.get_or_404(data.get('book_id'))
     book.issued += 1
@@ -65,6 +65,30 @@ def issue_book():
             "message" : "Transaction failed"
         }), 402
 
+
+    return jsonify({
+        "message" : "success"
+    }), 201
+
+
+
+
+@issue_bp.post('/request/<int:book_id>')
+@jwt_required()
+def request_book(book_id):
+    if len(current_user.issues) + len(current_user.requests) == 5:
+        return jsonify({
+            'error' : 'Forbidden',
+            "message": "User has equalled the limit to borrow."
+        }), 403
+    
+    
+    book = Book.query.get_or_404(book_id)
+    user_id = current_user.id 
+    
+    request = RequestSchema().load({'user_id':user_id, 'book_id': book_id}, session=db.session)
+
+    request.save()
 
     return jsonify({
         "message" : "success"
