@@ -1,7 +1,10 @@
 from flask import Blueprint, request, jsonify
+from application import db
 from application.models import User
 from application.schemas import UserSchema
 from application.validation import check_librarian
+from flask_jwt_extended import current_user, jwt_required
+from sqlalchemy.exc import SQLAlchemyError
 
 user_bp = Blueprint(
     'users',
@@ -38,4 +41,29 @@ def get_all_users():
             "total": users.total,
             "pages": users.pages
         }
+    }), 200
+
+
+
+
+@user_bp.delete('/')
+@jwt_required()
+def delete_user():
+    for book in current_user.books:
+        book.issued -= 1
+
+    db.session.delete(current_user)
+
+    try:
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        return jsonify({
+            "status" : "error",
+            "message" : "Transaction failed"
+        }), 404
+    
+
+    return jsonify({
+        "status" : "success",
     }), 200

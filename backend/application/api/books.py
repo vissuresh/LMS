@@ -64,6 +64,14 @@ def create_book():
 @check_librarian
 def update_book(book_id):
     book = Book.query.get_or_404(book_id)
+    
+    new_copies = request.json.get('copies')
+    if new_copies and new_copies < book.issued:
+        return jsonify({
+            "status" : "error",
+            "message" : "\'copies\' is less than \'issued\'"
+        }), 400
+    
     BookSchema().load(request.json, instance=book, session=db.session, partial=True)
     book.save()
     

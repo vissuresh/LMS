@@ -1,5 +1,7 @@
 from flask import Blueprint, jsonify, request
+from application import db
 from application.models import User, TokenBlocklist
+from sqlalchemy.exc import SQLAlchemyError
 from flask_jwt_extended import (create_access_token,
                                 create_refresh_token,
                                 jwt_required,
@@ -78,7 +80,7 @@ def refresh_access():
     identity = get_jwt_identity()
     new_access_token = create_access_token(identity=identity)
 
-    return jsonify({"access_token" : new_access_token}), 200
+    return jsonify({"access_t, cascade = 'all, delete'oken" : new_access_token}), 200
 
 
 
@@ -90,11 +92,35 @@ def logout_user():
 
     jti = jwt['jti']
 
-    token_type = jwt['type']
-    # Only refresh token. Can safely remove above line.
-
     token_block = TokenBlocklist(jti = jti)
     token_block.save()
 
 
-    return jsonify({"message" : f"{token_type} token revoked successfully"}), 200
+    return jsonify({"status": "success", "message" : "Refresh token revoked successfully"}), 200
+
+
+
+
+
+
+@auth_bp.delete('/')
+@jwt_required()
+def delete_user():
+    for book in current_user.books:
+        book.issued -= 1
+
+    db.session.delete(current_user)
+
+    try:
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        return jsonify({
+            "status" : "error",
+            "message" : "Transaction failed"
+        }), 404
+    
+
+    return jsonify({
+        "status" : "success",
+    }), 200

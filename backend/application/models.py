@@ -1,8 +1,10 @@
+from flask import jsonify
 from application import db
 from uuid import uuid4
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import CheckConstraint
+from sqlalchemy.exc import SQLAlchemyError
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -10,6 +12,10 @@ class User(db.Model):
     email = db.Column(db.String(), nullable = False, unique = True)
     password_hash = db.Column(db.String(128), nullable = False)
     name = db.Column(db.String(), nullable = False)
+
+
+    requests = db.relationship('BookRequest', backref = 'user', cascade = 'all, delete')
+    books = db.relationship('Book', secondary = 'book_issue', backref='users')
 
     def __repr__(self):
         return f"<User {self.email}>"
@@ -110,19 +116,28 @@ class BookIssue(db.Model):
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'))
 
     issued_at = db.Column(db.DateTime(), nullable = False, default = datetime.utcnow)
-    expiry = db.Column(db.DateTime(), nullable = False)
-
-    user = db.relationship('User', backref='issues')
-    book = db.relationship('Book', backref='issues')
+    expiry = db.Column(db.DateTime(), nullable = False,default=lambda: datetime.utcnow() + timedelta(days=7))
 
 
     def save(self):
         db.session.add(self)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except SQLAlchemyError:
+            db.session.rollback()
+            return jsonify({"status": "error", "message" : "Transaction failed"}), 404
+        
+        return jsonify({"status" : "success"}), 201
 
     def delete(self):
         db.session.delete(self)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except SQLAlchemyError:
+            db.session.rollback()
+            return jsonify({"status": "error", "message" : "Transaction failed"}), 404
+        
+        return jsonify({"status" : "success"}), 201
 
 
 
@@ -132,13 +147,24 @@ class BookRequest(db.Model):
     user_id = db.Column(db.String(), db.ForeignKey('user.id'))
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'))
 
-    user = db.relationship('User', backref='requests')
-    book = db.relationship('Book', backref='requests')
+    requested_at = db.Column(db.DateTime(), nullable = False, default = datetime.utcnow)
 
     def save(self):
         db.session.add(self)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except SQLAlchemyError:
+            db.session.rollback()
+            return jsonify({"status": "error", "message" : "Transaction failed"}), 404
+        
+        return jsonify({"status" : "success"}), 201
 
     def delete(self):
         db.session.delete(self)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except SQLAlchemyError:
+            db.session.rollback()
+            return jsonify({"status": "error", "message" : "Transaction failed"}), 404
+        
+        return jsonify({"status" : "success"}), 201

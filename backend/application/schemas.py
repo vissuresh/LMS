@@ -43,6 +43,7 @@ class IssueSchema(ma.SQLAlchemyAutoSchema):
     
     id = ma.auto_field(dump_only = True)
     issued_at = ma.auto_field(dump_only = True)
+    expiry = ma.auto_field(dump_only = True)
 
 
 

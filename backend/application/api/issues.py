@@ -1,12 +1,12 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, current_user
 
-from application.models import BookIssue, User, Book
+from application.models import Book, BookIssue
 from application.schemas import IssueSchema, RequestSchema
 from application.validation import check_librarian
 from application import db
 
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import SQLAlchemyError
 
 issue_bp = Blueprint(
     'issues',
@@ -14,82 +14,60 @@ issue_bp = Blueprint(
 )
 
 
-@issue_bp.get('/all')
-# @check_librarian
-def get_all_issues():
-    issues = BookIssue.query.all()
-    issue_data = IssueSchema().dump(issues, many=True)
 
+@issue_bp.delete('/revoke/<int:issue_id>')
+@check_librarian
+def revoke_book(issue_id):
+    issue = BookIssue.query.get_or_404(issue_id)
+    book = Book.query.get(issue.book_id)
+    
+    book.issued -=1
+    db.session.delete(issue)
+
+    try:
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        return jsonify({
+            "status" : "error",
+            "message" : "Transaction failed"
+        }), 404
+
+    
     return jsonify({
-        "issues" : issue_data
+        "status" : "success"
     }), 200
 
 
 
 
-
-@issue_bp.post('/')
-# @check_librarian
-def issue_book():
-    data = request.json
-    email = data.get('email')
-    if email is None:
-        return jsonify({"error" : "Invalid data", "Message" : "Missing email"}), 400
+@issue_bp.delete('/return/<int:issue_id>')
+@jwt_required()
+def return_book(issue_id):
+    issue = BookIssue.query.get_or_404(issue_id)
     
-    user = User.get_user_by_email(email)
-    if user is None:
-        return jsonify({"error" : "Invalid data", "Message": "User not found"}), 404
-    
-    data.pop('email')
-    data['user_id'] = user.id
-
-    issue = IssueSchema().load(data, session=db.session)
-    
-    if len(user.issues) == 5:
+    if current_user.id != issue.user_id:
         return jsonify({
-            "error": "Forbidden",
-            "message": "User has equalled the limit to borrow."
+            "status" : "error",
+            "message" : "Unauthorized action"
         }), 403
     
-    book = Book.query.get_or_404(data.get('book_id'))
-    book.issued += 1
-    db.session.add(issue)
+    book = Book.query.get(issue.book_id)
+
+    
+    book.issued -=1
+    db.session.delete(issue)
 
     try:
         db.session.commit()
-    except IntegrityError:
+    except SQLAlchemyError:
         db.session.rollback()
-
         return jsonify({
-            "error" : "Integrity Error",
+            "status" : "error",
             "message" : "Transaction failed"
-        }), 402
+        }), 404
 
-
+    
     return jsonify({
-        "message" : "success"
-    }), 201
-
-
-
-
-@issue_bp.post('/request/<int:book_id>')
-@jwt_required()
-def request_book(book_id):
-    if len(current_user.issues) + len(current_user.requests) == 5:
-        return jsonify({
-            'error' : 'Forbidden',
-            "message": "User has equalled the limit to borrow."
-        }), 403
-    
-    
-    book = Book.query.get_or_404(book_id)
-    user_id = current_user.id 
-    
-    request = RequestSchema().load({'user_id':user_id, 'book_id': book_id}, session=db.session)
-
-    request.save()
-
-    return jsonify({
-        "message" : "success"
-    }), 201
+        "status" : "success"
+    }), 200
