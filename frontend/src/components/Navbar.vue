@@ -9,8 +9,8 @@
     <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
       <ul class="navbar-nav navbar-right">
 
-        <li v-for="item in menuItems" class="nav-item">
-            <router-link :to="item.link">{{ item.text }}</router-link>
+        <li v-for="route in router.getRoutes()" class="nav-item">
+            <router-link :to="route.path">{{ route.name }}</router-link>
         </li>
 
       </ul>
@@ -20,12 +20,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-
-const menuItems = ref([
-  { id: 1, text: 'Home', link:'/' },
-  { id: 2, text: 'Login', link:'/login' },
-]);
+import { useRouter } from 'vue-router';
+const router = useRouter();
 </script>
 
 

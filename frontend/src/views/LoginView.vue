@@ -6,24 +6,23 @@
         <div class="card">
           <div class="card-header"><h4>Login</h4></div>
 
-          <div class="card-body">
-            <form @submit.prevent="login">
-
+          
+          <form @submit.prevent="login">
+            <div class="card-body">  
               <div class="mb-3">
                 <label for="email" class="form-label">Email address</label>
-                <input type="email" class="form-control" id="email" v-model="email" aria-describedby="emailHelp">
-                <div id="emailHelp" class="form-text">We take privacy seriously.</div>
+                <input type="email" class="form-control" id="email" v-model="email" required>
               </div>
 
               <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" v-model="password" id="password">
+                <input type="password" class="form-control" v-model="password" id="password" required>
               </div>
 
               <button type="submit" class="btn btn-primary">Submit</button>
-            </form>
+            </div>
 
-          </div>
+          </form>
 
         </div>
 
@@ -39,6 +38,9 @@
 <script setup>
 import { ref } from 'vue';
 import axios from 'axios';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const email = ref('');
 const password = ref('');
@@ -52,10 +54,15 @@ const login = async () => {
       password: password.value
     });
 
-    // Handle response data
-    console.log('Response:', response.data);
+  
+
+    console.log('Response:', response);
+    alert(response.data.message);
+    router.push('/');
+
   } catch (error) {
     console.error('Error:', error);
+    alert(error.response.data.message);
   }
 };
 </script>
