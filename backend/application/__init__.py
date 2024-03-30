@@ -5,9 +5,11 @@ from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS
+import logging
 
 
 app = Flask(__name__)
+app.logger.setLevel(logging.INFO)
 
 # Load config
 app.config.from_prefixed_env()

@@ -11,8 +11,8 @@
             <router-link to="/">Home</router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/auth/logout" @click="logout">Logout</router-link>
-            <router-link to="/auth/login">Login</router-link>
+            <button v-if="isAuthenticated" @click="handleLogout">Logout</button>
+            <router-link v-else to="/auth/login">Login</router-link>
           </li>
         </ul>
       </div>
@@ -21,7 +21,18 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 import { logout } from '@/services/logout';
+
+const store = useStore();
+const router = useRouter();
+const isAuthenticated = computed(() => store.getters.isAuthenticated);
+
+const handleLogout = () => {
+  logout(store, router);
+};
 </script>
 
 

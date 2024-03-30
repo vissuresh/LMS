@@ -39,8 +39,10 @@
 import { ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 
 const router = useRouter();
+const store = useStore();
 
 const email = ref('');
 const password = ref('');
@@ -55,7 +57,8 @@ const login = async () => {
       password: password.value
     });
 
-    localStorage.setItem('isAuthenticated', true);
+    store.dispatch('updateAuthenticated', true);
+    
     console.log('Response:', response);
     alert(response.data.message);
     router.push('/');

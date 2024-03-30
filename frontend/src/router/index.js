@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterVue.vue'
+import { useStore } from 'vuex'
 
 const homeRoutes = [
   {
@@ -14,18 +15,33 @@ const homeRoutes = [
 const authRoutes = [
   {
     path: '/auth',
-    component: { render: h => h('router-view') },
     redirect: '/auth/login',
     children: [
       {
         path: 'login',
         name: 'login',
         component: LoginView,
+        beforeEnter: (to, from, next) => {
+          const store = useStore();
+          if (store.getters.isAuthenticated) {
+            next('/');
+          } else {
+            next();
+          }
+        },
       },
       {
         path: 'register',
         name: 'register',
         component: RegisterView,
+        beforeEnter: (to, from, next) => {
+          const store = useStore();
+          if (store.getters.isAuthenticated) {
+            next('/');
+          } else {
+            next();
+          }
+        },
       },
     ]
   }

@@ -1,22 +1,19 @@
 // src/services/logout.js
 import axios from 'axios';
-import { useRouter } from 'vue-router';
 
-export async function logout() {
-  const router = useRouter();
-
-  if (localStorage.getItem('isAuthenticated')) {
+export async function logout(store, router) {
+  if (store.getters.isAuthenticated) {
     try {
-        const response = await axios.delete('auth/logout');
-        localStorage.removeItem('isAuthenticated');
+        const response = await axios.get('auth/logout');
+        store.dispatch('updateAuthenticated', false);
     
         console.log('Response:', response);
         alert(response.data.message);
     
       } catch (error) {
         console.error('Error:', error);
-        alert(error.response.data.message);
+        alert(error.response.message);
       }
   }
-  router.push('/login');
+  router.push('/auth/login');
 }

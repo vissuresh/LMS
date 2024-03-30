@@ -7,7 +7,7 @@ import time
 from flask_jwt_extended import (create_access_token,
                                 create_refresh_token, decode_token,
                                 jwt_required,
-                                get_jwt,
+                                get_jwt, unset_jwt_cookies,
                                 current_user,
                                 get_jwt_identity)
 
@@ -120,7 +120,9 @@ def logout_user():
     token_block.save()
 
 
-    return jsonify({"status": "success", "message" : "Refresh token revoked successfully"}), 200
+    resp = jsonify({"status": "success", "message" : "Refresh token revoked successfully"})
+    unset_jwt_cookies(resp)
+    return resp, 200
 
 
 
