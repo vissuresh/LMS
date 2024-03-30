@@ -1,27 +1,27 @@
-<!-- Navbar.vue -->
 <template>
-<nav class="navbar navbar-expand-lg bg-light">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">E-Library</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-      <ul class="navbar-nav navbar-right">
-
-        <li v-for="route in router.getRoutes()" class="nav-item">
-            <router-link :to="route.path">{{ route.name }}</router-link>
-        </li>
-
-      </ul>
+  <nav class="navbar navbar-expand-lg bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">E-Library</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav navbar-right">
+          <li class="nav-item">
+            <router-link to="/">Home</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link to="/auth/logout" @click="logout">Logout</router-link>
+            <router-link to="/auth/login">Login</router-link>
+          </li>
+        </ul>
+      </div>
     </div>
-  </div>
-</nav>
+  </nav>
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router';
-const router = useRouter();
+import { logout } from '@/services/logout';
 </script>
 
 

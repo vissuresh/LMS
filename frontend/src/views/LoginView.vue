@@ -47,15 +47,15 @@ const password = ref('');
 
 
 
+
 const login = async () => {
   try {
-    const response = await axios.post('http://localhost:5000/auth/login', {
+    const response = await axios.post('auth/login', {
       email: email.value,
       password: password.value
     });
 
-  
-
+    localStorage.setItem('isAuthenticated', true);
     console.log('Response:', response);
     alert(response.data.message);
     router.push('/');

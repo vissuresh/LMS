@@ -1,4 +1,5 @@
-from flask import jsonify
+from flask import jsonify, request
+from functools import wraps
 from application import db, jwt, models
 from flask_jwt_extended import jwt_required, get_jwt
 
@@ -9,6 +10,7 @@ from flask_jwt_extended import jwt_required, get_jwt
 def check_librarian(route):
 
     @jwt_required()
+    @wraps(route)
     def wrapper_func(*args, **kwargs):
         claims = get_jwt()
         if claims.get("is_librarian") is False:
@@ -17,9 +19,27 @@ def check_librarian(route):
         
         return route(*args, **kwargs)
     
-    wrapper_func.__name__ = route.__name__
-    
     return wrapper_func
+
+
+
+# Required parameters decorator
+def require_keys(*keys):
+
+    def decorator(route):
+
+        @wraps(route)
+        def decorated_function(*args, **kwargs):
+            data = request.get_json()
+            if not all(key in data for key in keys):
+                return jsonify({
+                    "success" : False,
+                    "message" : f"Missing required keys: {', '.join(keys)}"
+                }), 400
+            return route(*args, **kwargs)
+        return decorated_function
+    
+    return decorator
 
 
 

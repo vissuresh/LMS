@@ -15,9 +15,9 @@ class BookSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Book
         load_instance = True
-        include_fk = True
         
     id = ma.auto_field(dump_only = True)
+    section = ma.Nested('SectionSchema')
 
 
 
@@ -25,10 +25,10 @@ class SectionSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Section
         load_instance = True
-        include_fk = True
 
     id = ma.auto_field(dump_only = True)
     date_created = ma.auto_field(dump_only = True)
+    books = ma.Nested('BookSchema', many=True, exclude=('section',))
 
 
 

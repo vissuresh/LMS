@@ -77,7 +77,7 @@ const validate = () => {
 
 const register = async () => {
   try {
-    const response = await axios.post('http://localhost:5000/auth/register', {
+    const response = await axios.post('auth/register', {
       email: email.value,
       password: password.value,
       name: name.value,
@@ -86,7 +86,7 @@ const register = async () => {
     
     console.log('Response:', response);
     alert(response.data.message)
-    router.push('/login');
+    router.push('/auth/login');
 
   } catch (error) {
     console.error('Error:', error);

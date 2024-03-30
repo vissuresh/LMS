@@ -30,7 +30,7 @@ def get_all_books():
 
     result = BookSchema().dump(books, many=True)    
 
-    return jsonify({
+    return jsonify({    
         "books" : result,
 
         "pagination": {

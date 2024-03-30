@@ -18,7 +18,7 @@ db = SQLAlchemy(app)
 jwt = JWTManager(app)
 migrate = Migrate(app, db)
 ma = Marshmallow(app)
-CORS(app)
+CORS(app, supports_credentials=True)
 
 from application import validation
-from application import blueprints
+from application import blueprints      

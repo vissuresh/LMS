@@ -1,9 +1,11 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, make_response
+from application.validation import require_keys
 from application import db
 from application.models import User, TokenBlocklist
 from sqlalchemy.exc import SQLAlchemyError
+import time
 from flask_jwt_extended import (create_access_token,
-                                create_refresh_token,
+                                create_refresh_token, decode_token,
                                 jwt_required,
                                 get_jwt,
                                 current_user,
@@ -16,6 +18,7 @@ auth_bp = Blueprint('auth', __name__)
 
 
 @auth_bp.post('/register')
+@require_keys('email', 'name', 'password')
 def register_user():    
 
     data = request.get_json()
@@ -42,28 +45,27 @@ def register_user():
 
 
 @auth_bp.post('/login')
+@require_keys('email', 'password')
 def login_user():
     data = request.get_json()
-
     user = User.get_user_by_email(email = data.get('email'))
     
     if user and user.check_password(data.get('password')):
+        resp = make_response(jsonify({
+            "success" : True,
+            "message" : "Logged in"
+        }), 200)
+
         access_token = create_access_token(identity=user.email)
         refresh_token = create_refresh_token(identity=user.email)
 
-        return jsonify(
-            {
-                "success" : True,
-                "message" : "Logged in",
+        access_exp = decode_token(access_token)['exp']
+        refresh_exp = decode_token(refresh_token)['exp']
 
-                "data":{
-                    "tokens" : {
-                    "access" : access_token,
-                    "refresh" : refresh_token
-                }
-                }
-            }
-        ), 200
+        resp.set_cookie('access_token_cookie', access_token, samesite=None, secure=False, max_age=access_exp - int(time.time()))
+        resp.set_cookie('refresh_token_cookie', refresh_token, samesite=None, secure=False, max_age=refresh_exp - int(time.time()))
+
+        return resp
     
     
     return jsonify({
@@ -89,11 +91,20 @@ def whoami():
 @auth_bp.get('/refresh')
 @jwt_required(refresh=True)
 def refresh_access():
-
     identity = get_jwt_identity()
+   
     new_access_token = create_access_token(identity=identity)
+    access_exp = decode_token(new_access_token)['exp']
 
-    return jsonify({"access_t, cascade = 'all, delete'oken" : new_access_token}), 200
+
+    resp = make_response(jsonify({
+        "success" : True,
+        "message" : "Refresh token created"
+    }), 200)
+
+    resp.set_cookie('access_token_cookie', new_access_token, samesite=None, secure=False, max_age=access_exp - int(time.time()))
+
+    return resp
 
 
 
