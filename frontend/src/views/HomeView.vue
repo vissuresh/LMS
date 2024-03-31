@@ -25,8 +25,7 @@ onMounted(async () => {
     const response = await axios.get('books/all');
     books.value = response.data.books;
   } catch (error) {
-      console.error(error);
-      alert(error.response.data.message);
+      console.log('Error:', error);
   }
   
 });

@@ -61,11 +61,19 @@ const login = async () => {
     
     console.log('Response:', response);
     alert(response.data.message);
+
     router.push('/');
+
+    try{
+      const response = await axios.get('books/user');
+      console.log('User books response:', response);
+    } catch (error) {
+      console.error('Error:', error);
+    }
 
   } catch (error) {
     console.error('Error:', error);
-    alert(error.response.data.message);
+    alert(error.response);
   }
 };
 </script>

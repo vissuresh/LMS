@@ -2,8 +2,27 @@ from flask import jsonify, request
 from functools import wraps
 from application import db, jwt, models
 from flask_jwt_extended import jwt_required, get_jwt
+from flask_jwt_extended.exceptions import CSRFError
+
+from application import app
+import traceback
 
 
+@app.errorhandler(CSRFError)
+def handle_csrf_error(err):
+    print("CSRF error")
+    print(err)
+
+    traceback.print_exc()
+    
+    response = jsonify({
+        "success":False,
+        "message": "CSRF token missing or incorrect",
+        "error_type": "csrf",
+        "details": str(err)
+    })
+    response.status_code = 401
+    return response
 
 
 # Check Librarian decorator
@@ -87,6 +106,7 @@ def invalid_token_callback(error):
 
 @jwt.unauthorized_loader
 def missing_token_callback(error):
+
     return jsonify({
         "message" : "Token missing in request",
         "error" : "authorization_header"

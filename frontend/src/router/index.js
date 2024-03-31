@@ -9,7 +9,15 @@ const homeRoutes = [
     path: '/',
     name: 'home',
     component: HomeView,
-  }, 
+    // beforeEnter: (to, from, next) => {
+    //   const store = useStore();
+    //   if (store.getters.isAuthenticated) {
+    //     next();
+    //   } else {
+    //     next('/auth/login');
+    //   }
+    // },
+  },
 ]
 
 const authRoutes = [

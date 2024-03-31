@@ -1,18 +1,17 @@
-from flask import Flask
+from flask import Flask, jsonify
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS
-import logging
+from application.config import Config
 
 
 app = Flask(__name__)
-app.logger.setLevel(logging.INFO)
 
 # Load config
-app.config.from_prefixed_env()
+app.config.from_object(Config)
 
 
 # Load and initialize extensions

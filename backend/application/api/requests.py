@@ -28,8 +28,15 @@ def get_all_requests():
 
 
 
+# @request_bp.get('/user')
+# @jwt_required()
+# def get_user_requests():
+#     return jsonify(BookSchema().dump(current_user.books, many=True))
+
+
+
 @request_bp.post('/grant/<int:request_id>')
-# @check_librarian
+@check_librarian
 def grant_book(request_id):
     book_request = BookRequest.query.get_or_404(request_id)
     book = Book.query.get_or_404(book_request.book_id)
@@ -69,7 +76,8 @@ def grant_book(request_id):
 @request_bp.post('/<int:book_id>')
 @jwt_required()
 def request_book(book_id):
-    if len(current_user.books) + len(current_user.requests) == 5:
+    
+    if len(current_user.books) + len(   current_user.requests) == 5:
         return jsonify({
             'status' : 'error',
             "message": "User has equalled the limit to borrow."

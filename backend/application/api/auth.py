@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, make_response
 from application.validation import require_keys
-from application import db
+from application import db, app
 from application.models import User, TokenBlocklist
 from sqlalchemy.exc import SQLAlchemyError
 import time
@@ -8,6 +8,8 @@ from flask_jwt_extended import (create_access_token,
                                 create_refresh_token, decode_token,
                                 jwt_required,
                                 get_jwt, unset_jwt_cookies,
+                                set_access_cookies,
+                                set_refresh_cookies,
                                 current_user,
                                 get_jwt_identity)
 
@@ -59,11 +61,11 @@ def login_user():
         access_token = create_access_token(identity=user.email)
         refresh_token = create_refresh_token(identity=user.email)
 
-        access_exp = decode_token(access_token)['exp']
-        refresh_exp = decode_token(refresh_token)['exp']
+        access_expiry = decode_token(access_token)['exp']
+        refresh_expiry = decode_token(refresh_token)['exp']
 
-        resp.set_cookie('access_token_cookie', access_token, samesite=None, secure=False, max_age=access_exp - int(time.time()))
-        resp.set_cookie('refresh_token_cookie', refresh_token, samesite=None, secure=False, max_age=refresh_exp - int(time.time()))
+        set_access_cookies(resp, access_token, max_age= access_expiry - time.time())
+        set_refresh_cookies(resp, refresh_token, max_age= refresh_expiry - time.time())
 
         return resp
     
@@ -93,7 +95,7 @@ def whoami():
 def refresh_access():
     identity = get_jwt_identity()
    
-    new_access_token = create_access_token(identity=identity)
+    new_access_token = create_access_token(identity=identity, csrf=False)
     access_exp = decode_token(new_access_token)['exp']
 
 
@@ -102,8 +104,7 @@ def refresh_access():
         "message" : "Refresh token created"
     }), 200)
 
-    resp.set_cookie('access_token_cookie', new_access_token, samesite=None, secure=False, max_age=access_exp - int(time.time()))
-
+    set_access_cookies(resp, new_access_token)
     return resp
 
 

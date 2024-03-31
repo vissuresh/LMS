@@ -6,6 +6,7 @@ export async function logout(store, router) {
     try {
         const response = await axios.get('auth/logout');
         store.dispatch('updateAuthenticated', false);
+        localStorage.removeItem('isAuthenticated');
     
         console.log('Response:', response);
         alert(response.data.message);

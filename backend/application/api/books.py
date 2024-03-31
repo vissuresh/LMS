@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, current_user
 from application.models import Book
 from application.schemas import BookSchema
 from application.validation import check_librarian
@@ -48,6 +48,14 @@ def get_book(book_id):
     book = Book.query.get_or_404(book_id)
 
     return jsonify(BookSchema().dump(book))
+
+
+@book_bp.get('/user')
+@jwt_required()
+def get_user_books():
+    print(current_user.books)
+    return jsonify(BookSchema().dump(current_user.books, many=True))
+
 
 
 
