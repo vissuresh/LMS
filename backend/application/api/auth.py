@@ -53,16 +53,29 @@ def login_user():
     user = User.get_user_by_email(email = data.get('email'))
     
     if user and user.check_password(data.get('password')):
-        resp = make_response(jsonify({
-            "success" : True,
-            "message" : "Logged in"
-        }), 200)
+
 
         access_token = create_access_token(identity=user.email)
         refresh_token = create_refresh_token(identity=user.email)
 
-        access_expiry = decode_token(access_token)['exp']
-        refresh_expiry = decode_token(refresh_token)['exp']
+        decoded_access_token = decode_token(access_token)
+        decoded_refresh_token = decode_token(refresh_token)
+
+        if(decoded_access_token.get('is_librarian') == True):
+            resp = make_response(jsonify({
+            "success" : True,
+            "message" : "Logged in",
+            "is_librarian": True
+        }), 200)
+        else:
+            resp = make_response(jsonify({
+            "success" : True,
+            "message" : "Logged in"
+        }), 200)
+
+
+        access_expiry = decoded_access_token['exp']
+        refresh_expiry = decoded_refresh_token['exp']
 
         set_access_cookies(resp, access_token, max_age= access_expiry - time.time())
         set_refresh_cookies(resp, refresh_token, max_age= refresh_expiry - time.time())

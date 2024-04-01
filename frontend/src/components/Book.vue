@@ -1,28 +1,31 @@
 <template>
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">{{ book.name }}</h5>
-        <h6 class="card-subtitle mb-2 text-muted">{{ book.author }}</h6>
-        <p class="card-text">{{ book.section.name }}</p>
-      </div>
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">{{ book.name }}</h5>
+      <h6 class="card-subtitle mb-2 text-muted">{{ book.author }}</h6>
+      <p class="card-text">
+        <router-link :to="`/section/${book.section.id}`">{{ book.section.name }}</router-link>
+      </p>
+      <button class="btn btn-primary" @click="requestBook">Request</button>
     </div>
-  </template>
+  </div>
+</template>
   
-  <script setup>
-  import { ref, toRefs } from 'vue';
-  
-  const props = defineProps({
-    book: {
-      type: Object,
-      default: () => ({})
-    }
-  });
-  
-  const { book } = toRefs(props);
-  </script>
-  
-  <style scoped>
-  .card {
-    margin-bottom: 1em;
+<script setup>
+import { ref, toRefs } from 'vue';
+
+const props = defineProps({
+  book: {
+    type: Object,
+    default: () => ({})
   }
-  </style>
+});
+
+const { book } = toRefs(props);
+</script>
+
+<style scoped>
+.card {
+  margin-bottom: 1em;
+}
+</style>

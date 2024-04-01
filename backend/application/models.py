@@ -72,7 +72,7 @@ class Section(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(64), nullable = False)
     date_created = db.Column(db.Date, default = datetime.today, nullable = False)
-    desc = db.Column(db.String(128), nullable = False)
+    desc = db.Column(db.String(32))
 
     def save(self):
         db.session.add(self)
@@ -88,6 +88,7 @@ class Book(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(64), nullable = False)
     author = db.Column(db.String(64), nullable = False)
+    desc = db.Column(db.String(128))
     section_id = db.Column(db.Integer, db.ForeignKey('section.id'))
 
     copies = db.Column(db.Integer, nullable = False)

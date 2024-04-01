@@ -11,14 +11,6 @@ class UserSchema(ma.SQLAlchemySchema):
     name = ma.auto_field(dump_only = True)
 
 
-class BookSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Book
-        load_instance = True
-        
-    id = ma.auto_field(dump_only = True)
-    section = ma.Nested('SectionSchema')
-
 
 
 class SectionSchema(ma.SQLAlchemyAutoSchema):
@@ -29,6 +21,17 @@ class SectionSchema(ma.SQLAlchemyAutoSchema):
     id = ma.auto_field(dump_only = True)
     date_created = ma.auto_field(dump_only = True)
     books = ma.Nested('BookSchema', many=True, exclude=('section',))
+
+
+
+class BookSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Book
+        load_instance = True
+        
+    id = ma.auto_field(dump_only = True)
+    section = ma.Nested(SectionSchema(only=('id', 'name')))
+
 
 
 

@@ -40,6 +40,7 @@ import { ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
+import { userLoadData } from '@/services/userLoadData.js';
 
 const router = useRouter();
 const store = useStore();
@@ -57,18 +58,18 @@ const login = async () => {
       password: password.value
     });
 
-    store.dispatch('updateAuthenticated', true);
+    store.commit('setAuthenticated', true);
     
-    console.log('Response:', response);
     alert(response.data.message);
 
-    router.push('/');
-
-    try{
-      const response = await axios.get('books/user');
-      console.log('User books response:', response);
-    } catch (error) {
-      console.error('Error:', error);
+    if(response.data.is_librarian === true){
+      store.commit('setLibrarian', true);
+      router.push('/librarian');
+    } else {
+      store.commit('setLibrarian', false);
+      router.push('/');
+      
+      userLoadData();
     }
 
   } catch (error) {

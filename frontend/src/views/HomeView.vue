@@ -16,9 +16,14 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import Book from '@/components/Book.vue';
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 
 const books = ref([]);
 const router = useRouter();
+const store = useStore();
+
+
+console.log(store.getters.userBooks);
 
 onMounted(async () => {
   try {

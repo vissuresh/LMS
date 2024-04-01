@@ -13,10 +13,10 @@ book_bp = Blueprint(
 
 @book_bp.get('/all')
 @jwt_required()
-def get_all_books():    
+def get_all_books():
     
     page = request.args.get('page', default=1, type=int)
-    per_page = request.args.get('per_page', default=10, type=int)
+    per_page = request.args.get('per_page', default=12, type=int)
 
     try:
         books = Book.query.paginate(
@@ -47,14 +47,13 @@ def get_all_books():
 def get_book(book_id):
     book = Book.query.get_or_404(book_id)
 
-    return jsonify(BookSchema().dump(book))
+    return jsonify(BookSchema().dump(book)), 200
 
 
 @book_bp.get('/user')
 @jwt_required()
 def get_user_books():
-    print(current_user.books)
-    return jsonify(BookSchema().dump(current_user.books, many=True))
+    return jsonify({"books": BookSchema().dump(current_user.books, many=True)}), 200
 
 
 

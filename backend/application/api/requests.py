@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, current_user
 
 from application.models import Book, BookRequest, BookIssue
-from application.schemas import IssueSchema, RequestSchema
+from application.schemas import IssueSchema, RequestSchema, BookSchema
 from application.validation import check_librarian
 from application import db
 
@@ -28,10 +28,10 @@ def get_all_requests():
 
 
 
-# @request_bp.get('/user')
-# @jwt_required()
-# def get_user_requests():
-#     return jsonify(BookSchema().dump(current_user.books, many=True))
+@request_bp.get('/user')
+@jwt_required()
+def get_user_requests():
+    return jsonify(BookSchema().dump(current_user.requests, many=True))
 
 
 
