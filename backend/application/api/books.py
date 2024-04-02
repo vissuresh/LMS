@@ -53,7 +53,10 @@ def get_book(book_id):
 @book_bp.get('/user')
 @jwt_required()
 def get_user_books():
-    return jsonify({"books": BookSchema().dump(current_user.books, many=True)}), 200
+    return jsonify({
+        "success" : True,
+        "books": BookSchema(exclude=('copies','issued','path',)).dump(current_user.books, many=True)
+    }), 200
 
 
 

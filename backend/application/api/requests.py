@@ -31,7 +31,19 @@ def get_all_requests():
 @request_bp.get('/user')
 @jwt_required()
 def get_user_requests():
-    return jsonify(BookSchema().dump(current_user.requests, many=True))
+    user_requested_books = []
+    for request in current_user.requests:
+        book = Book.query.get(request.book_id)
+
+        user_requested_books.append({
+            "request_id" :request.id,
+            "book_id" :book.id,
+        })
+        
+    return jsonify({
+        "success" : True,
+        "requests" : user_requested_books
+    }), 200
 
 
 

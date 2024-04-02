@@ -22,9 +22,6 @@ const books = ref([]);
 const router = useRouter();
 const store = useStore();
 
-
-console.log(store.getters.userBooks);
-
 onMounted(async () => {
   try {
     const response = await axios.get('books/all');
