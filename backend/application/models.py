@@ -158,7 +158,7 @@ class BookRequest(db.Model):
             db.session.rollback()
             return jsonify({"status": "error", "message" : "Transaction failed"}), 404
         
-        return jsonify({"status" : "success"}), 201
+        return jsonify({"status" : "success", "request_id" : self.id}), 201
 
     def delete(self):
         db.session.delete(self)

@@ -11,7 +11,7 @@
             <router-link to="/">Home</router-link>
           </li>
           <li class="nav-item">
-            <button v-if="isAuthenticated" @click="handleLogout">Logout</button>
+            <button class="btn btn-danger" v-if="isAuthenticated" @click="handleLogout">Logout</button>
             <router-link v-else to="/auth/login">Login</router-link>
           </li>
         </ul>

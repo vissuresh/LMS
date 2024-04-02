@@ -1,6 +1,10 @@
-import { createStore } from 'vuex'
+import { createStore, createLogger } from 'vuex'
+
 
 export default createStore({
+  plugins: [createLogger()],
+
+
   state: {
     isAuthenticated: localStorage.getItem('isAuthenticated') === null ? false : JSON.parse(localStorage.getItem('isAuthenticated')),
 
@@ -8,9 +12,6 @@ export default createStore({
 
     userBooks: [],
     userRequests: [],
-
-    current_page_books: [],
-    next_page_books: [],
   },
 
   getters: {

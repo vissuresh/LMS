@@ -14,6 +14,7 @@ export async function userLoadData(){
     try{
         const response = await axios.get('requests/user');
         store.commit('setUserRequests', response.data.requests);
+        
     } catch (error) {
         console.error('Error:', error);
     }
