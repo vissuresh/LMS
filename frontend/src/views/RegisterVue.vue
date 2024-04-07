@@ -57,6 +57,7 @@
 import { ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import { createInfoModal } from '@/services/modal.js';
 
 const router = useRouter();
 
@@ -76,6 +77,7 @@ const validate = () => {
 
 
 const register = async () => {
+  let modal = null;
   try {
     const response = await axios.post('auth/register', {
       email: email.value,
@@ -83,14 +85,16 @@ const register = async () => {
       name: name.value,
     });
 
-    
-    console.log('Response:', response);
-    alert(response.data.message)
+    modal = createInfoModal("Registration", "Registration successful. You can now login.");
+
     router.push('/auth/login');
 
   } catch (error) {
     console.error('Error:', error);
-    alert(error.response.data.message);
+
+    modal = createInfoModal("Registration", "Registration failed. Please try again.");
+
   }
+  modal.show();
 };
 </script>

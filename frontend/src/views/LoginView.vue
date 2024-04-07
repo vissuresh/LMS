@@ -41,6 +41,7 @@ import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import { userLoadData } from '@/services/userLoadData.js';
+import createInfoModal from '@/services/modal.js';
 
 const router = useRouter();
 const store = useStore();
@@ -58,23 +59,21 @@ const login = async () => {
       password: password.value
     });
 
-    store.commit('setAuthenticated', true);
-    
-    alert(response.data.message);
+    localStorage.setItem('authenticated', true);
+
 
     if(response.data.is_librarian === true){
-      store.commit('setLibrarian', true);
+      localStorage.setItem('librarian', true);
       router.push('/librarian');
     } else {
-      store.commit('setLibrarian', false);
-      router.push('/');
+      router.push('/books');
       
       userLoadData();
     }
 
   } catch (error) {
-    console.error('Error:', error);
-    alert(error.response);
+    const modal = createInfoModal("Login", error.response.data.message);
+    modal.show();
   }
 };
 </script>

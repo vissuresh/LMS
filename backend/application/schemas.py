@@ -1,5 +1,5 @@
 from application import db, ma
-from application.models import User, Book, Section, BookIssue, BookRequest
+from application.models import User, Book, Section, BookIssue, BookRequest, Feedback
 
 class UserSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -30,9 +30,20 @@ class BookSchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         
     id = ma.auto_field(dump_only = True)
-    section = ma.Nested(SectionSchema(only=('id', 'name')))
+    section = ma.Nested(SectionSchema(only=('id', 'name')), dump_only = True)
 
 
+
+class FeedbackSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Feedback
+        load_instance = True
+
+    id = ma.auto_field(dump_only = True)
+    user = ma.Method('get_username', dump_only = True)
+
+    def get_username(self, obj):
+        return obj.user.name
 
 
 

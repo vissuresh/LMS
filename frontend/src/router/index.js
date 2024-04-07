@@ -2,22 +2,54 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterVue.vue'
-import { useStore } from 'vuex'
+import BookView from '../views/BookView.vue'
+import Navbar from '@/components/Navbar.vue'
+import LibrarianNavbar from '@/components/LibrarianNavbar.vue'
+import Dashboard from '@/views/librarian/Dashboard.vue'
 
-const homeRoutes = [
+console.log(Navbar);
+
+
+const bookRoutes = [
   {
-    path: '/',
-    name: 'home',
-    component: HomeView,
-    // beforeEnter: (to, from, next) => {
-    //   const store = useStore();
-    //   if (store.getters.isAuthenticated) {
-    //     next();
-    //   } else {
-    //     next('/auth/login');
-    //   }
-    // },
+    path: '/books',
+    name: 'books',
+    components: {
+      default: HomeView,
+      navbar: Navbar
+    },
   },
+
+  {
+    path: '/books/:id',
+    name: 'book',
+    components: {
+      default: BookView,
+      navbar: Navbar
+    },
+    props: true,
+  },
+
+]
+
+
+const librarianRoutes = [
+  {
+    path: '/librarian',
+    redirect: '/librarian',
+    meta: { roles: ['librarian']},  
+
+    children: [
+      {
+        path: '/',
+        name: 'dashboard',
+        components: {
+          default: Dashboard,
+          navbar: LibrarianNavbar
+        },
+      },
+    ],
+  }
 ]
 
 const authRoutes = [
@@ -28,27 +60,17 @@ const authRoutes = [
       {
         path: 'login',
         name: 'login',
-        component: LoginView,
-        beforeEnter: (to, from, next) => {
-          const store = useStore();
-          if (store.getters.isAuthenticated) {
-            next('/');
-          } else {
-            next();
-          }
+        components: {
+          default: LoginView,
+          navbar: Navbar
         },
       },
       {
         path: 'register',
         name: 'register',
-        component: RegisterView,
-        beforeEnter: (to, from, next) => {
-          const store = useStore();
-          if (store.getters.isAuthenticated) {
-            next('/');
-          } else {
-            next();
-          }
+        components: {
+          default: RegisterView,
+          navbar: Navbar
         },
       },
     ]
@@ -56,13 +78,25 @@ const authRoutes = [
 ]
 
 
+
+
 const routes = [
-  ...authRoutes, ...homeRoutes
+  ...authRoutes, ...bookRoutes, ...librarianRoutes
 ]
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
 })
+
+
+router.beforeEach((to, from, next) => {
+  const userRole = localStorage.getItem('librarian') ? 'librarian' : 'user';
+  if (to.meta.roles && !to.meta.roles.includes(userRole)) {
+    next('/books');
+  } else {
+    next();
+  }
+});
 
 export default router

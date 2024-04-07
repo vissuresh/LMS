@@ -101,7 +101,7 @@ def request_book(book_id):
 
     existing_request = BookRequest.query.filter_by(user_id = user_id, book_id = book_id).first()
     if existing_request:
-        return jsonify({
+        return jsonify({    
             "status" : "error",
             "message" : "Request for this book already exists"
         }), 403

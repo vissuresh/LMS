@@ -90,12 +90,14 @@ class Book(db.Model):
     author = db.Column(db.String(64), nullable = False)
     desc = db.Column(db.String(128))
     section_id = db.Column(db.Integer, db.ForeignKey('section.id'))
+    picture = db.Column(db.LargeBinary)
 
     copies = db.Column(db.Integer, nullable = False)
     issued = db.Column(db.Integer, nullable = False, default = 0)
     path = db.Column(db.String(128), nullable = False)
 
     section = db.relationship('Section', backref='books')
+    feedback = db.relationship('Feedback', backref='book', cascade = 'all, delete')
 
     __table_args__ = (
         CheckConstraint('issued <= copies', name='check_book_available_constraint'),
@@ -109,6 +111,30 @@ class Book(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
+
+
+
+class Feedback(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    user_id = db.Column(db.String(), db.ForeignKey('user.id'))
+    book_id = db.Column(db.Integer, db.ForeignKey('book.id'))
+
+    comment = db.Column(db.String(128), nullable = False)
+    rating = db.Column(db.Integer, nullable = False)
+
+    user = db.relationship('User')
+    
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+
 
 
 class BookIssue(db.Model):

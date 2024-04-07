@@ -81,7 +81,7 @@ def login_user():
         set_refresh_cookies(resp, refresh_token, max_age= refresh_expiry - time.time())
 
         return resp
-    
+        
     
     return jsonify({
         "success" : False,
@@ -108,16 +108,24 @@ def whoami():
 def refresh_access():
     identity = get_jwt_identity()
    
-    new_access_token = create_access_token(identity=identity, csrf=False)
-    access_exp = decode_token(new_access_token)['exp']
+    new_access_token = create_access_token(identity=identity)
+    decoded_access_token = decode_token(new_access_token)
+    access_expiry = decoded_access_token['exp']
 
 
-    resp = make_response(jsonify({
+    if(decoded_access_token.get('is_librarian') == True):
+        resp = make_response(jsonify({
         "success" : True,
-        "message" : "Refresh token created"
+        "message" : "New access token created",
+        "is_librarian": True
+    }), 200)
+    else:
+        resp = make_response(jsonify({
+        "success" : True,
+        "message" : "New access token created"
     }), 200)
 
-    set_access_cookies(resp, new_access_token)
+    set_access_cookies(resp, new_access_token, max_age= access_expiry - time.time())
     return resp
 
 

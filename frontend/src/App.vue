@@ -1,6 +1,7 @@
 <template>
-  <Navbar />
-  <router-view/>
+  <router-view name="navbar"/>
+  <router-view />
+  <InfoModal />
 </template>
 
 <style scoped>
@@ -16,11 +17,12 @@
 
 <script>
 import Navbar from './components/Navbar.vue'
+import InfoModal from './components/InfoModal.vue'
 
 export default {
   name: 'App',
   components: {
-    Navbar,
+    Navbar, InfoModal
   }
 }
 </script>

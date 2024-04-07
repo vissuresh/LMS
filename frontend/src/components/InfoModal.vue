@@ -1,9 +1,9 @@
 <template>
-  <div class="modal fade" id="requestModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="modalLabel">Request Book</h1>
+          <h1 class="modal-title fs-5" id="modalLabel"></h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">

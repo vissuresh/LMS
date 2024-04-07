@@ -13,28 +13,24 @@
             <router-link :to="`/section/${book.section.id}`">{{ book.section.name }}</router-link>
           </p>
           <p class="card-text">
-            <button type="button" class="btn btn-primary" @click="requestBook">
-              Request
-            </button>
+            <button type="button" class="btn btn-primary" @click="handleRequestBook">Request</button>
           </p>
           <p class="card-text">
-            <button class="btn btn-warning">View More</button>
+            <button class="btn btn-warning">
+              <router-link :to="`/books/${book.id}`">View More</router-link>
+            </button>
           </p>
-        </div>
+        </div>  
       </div>
     
     </div>
   </div>
 
-  <ModalComponent />
 </template>
   
 <script setup>
-import { ref } from 'vue';
-import ModalComponent from '@/components/ModalComponent.vue';
-import { useStore } from 'vuex';
-import { Modal } from 'bootstrap';
-import axios from 'axios';
+import { requestBook } from '@/services/requestBook.js';
+
 
 const props = defineProps({
   book: {
@@ -44,52 +40,8 @@ const props = defineProps({
 });
 
 const { book } = props;
-const vue_store = useStore();
 
-
-const requestBook = async () => {
-
-  const modalElement = document.getElementById('requestModal');
-  const modal = new Modal(modalElement);
-  const modalBody = document.querySelector('#requestModal .modal-body');
-
-  if(vue_store.getters.userBooks.length + vue_store.getters.userRequests.length === 5){
-    modalBody.textContent = 'You have reached the limit of 5 books';
-    return modal.show();
-  }
-
-  for(let req of vue_store.getters.userRequests){
-    if(req.book_id === book.id){
-      modalBody.textContent = 'You have already requested this book';
-      return modal.show();
-    }
-  }
-
-  for(let user_book of vue_store.getters.userBooks){
-    if(user_book.id === book.id){
-      modalBody.textContent = 'You already have this book';
-      return modal.show();
-    }
-  }
-
-  try {
-    const response = await axios.post(`/requests/${book.id}`);
-    
-    const newUserRequest = {
-      "book_id": book.id,
-      "request_id": response.data.request_id
-    };
-
-    vue_store.commit('addUserRequest', newUserRequest);
-    modalBody.textContent = 'Request successful!';
-  } catch (error) {
-    console.log('Error:', error.response);
-    modalBody.textContent = 'Request failed...';
-  }
-  modal.show();
-}
-
-
+const handleRequestBook = () => requestBook(book.id);
 </script>
 
 <style scoped>
