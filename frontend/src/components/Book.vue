@@ -10,7 +10,7 @@
 
         <div class="col text-end">
           <p class="card-text mb-5">
-            <router-link :to="`/section/${book.section.id}`">{{ book.section.name }}</router-link>
+            <router-link :to="`/sections/${book.section.id}`">{{ book.section.name }}</router-link>
           </p>
           <p class="card-text">
             <button type="button" class="btn btn-primary" @click="handleRequestBook">Request</button>

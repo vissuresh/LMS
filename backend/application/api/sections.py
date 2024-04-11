@@ -50,11 +50,11 @@ def get_section(section_id):
     section = Section.query.get_or_404(section_id)
     section_data = SectionSchema().dump(section)
 
+    popular_books = section.books.order_by(db.func.avg(Book.feedback.any().rating).desc()).limit(10).all()
+    popular_books_data = BookSchema().dump(popular_books, many=True)
 
-    books = Book.query.filter_by(section_id=section_id).all()
-    books_data = BookSchema().dump(books, many=True)
 
-    return jsonify({"section":section_data, "books" : books_data}), 200
+    return jsonify({"section":section_data, "popular_books": popular_books_data}), 200
 
 
 

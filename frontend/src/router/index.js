@@ -6,6 +6,7 @@ import BookView from '../views/BookView.vue'
 import Navbar from '@/components/Navbar.vue'
 import LibrarianNavbar from '@/components/LibrarianNavbar.vue'
 import Dashboard from '@/views/librarian/Dashboard.vue'
+import SectionView from '@/views/SectionView.vue'
 
 console.log(Navbar);
 
@@ -29,7 +30,20 @@ const bookRoutes = [
     },
     props: true,
   },
+]
 
+
+const sectionRoutes = [
+
+  {
+    path: '/sections/:id',
+    name: 'sections',
+    components: {
+      default: SectionView,
+      navbar: Navbar
+    },
+    props: true,
+  },
 ]
 
 
@@ -81,7 +95,7 @@ const authRoutes = [
 
 
 const routes = [
-  ...authRoutes, ...bookRoutes, ...librarianRoutes
+  ...authRoutes, ...bookRoutes, ...librarianRoutes, ...sectionRoutes
 ]
 
 const router = createRouter({

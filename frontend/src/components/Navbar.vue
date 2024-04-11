@@ -30,6 +30,8 @@ const router = useRouter();
 
 const authenticated = computed(() => localStorage.getItem('authenticated'));
 
+console.log(authenticated.value);
+
 const handleLogout = async () => {
   let modal = null;
 

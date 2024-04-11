@@ -39,12 +39,9 @@
 import { ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-import { useStore } from 'vuex';
-import { userLoadData } from '@/services/userLoadData.js';
 import createInfoModal from '@/services/modal.js';
 
 const router = useRouter();
-const store = useStore();
 
 const email = ref('');
 const password = ref('');
@@ -68,7 +65,6 @@ const login = async () => {
     } else {
       router.push('/books');
       
-      userLoadData();
     }
 
   } catch (error) {
