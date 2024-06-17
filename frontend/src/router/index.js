@@ -1,21 +1,35 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import LoginView from '../views/LoginView.vue'
-import RegisterView from '../views/RegisterVue.vue'
-import BookView from '../views/BookView.vue'
+import BooksView from '@/views/BooksView.vue'
+import LoginView from '@/views/LoginView.vue'
+import RegisterView from '@/views/RegisterVue.vue'
+import BookView from '@/views/BookView.vue'
 import Navbar from '@/components/Navbar.vue'
 import LibrarianNavbar from '@/components/LibrarianNavbar.vue'
 import Dashboard from '@/views/librarian/Dashboard.vue'
 
-console.log(Navbar);
+
+const defaultRoute ={
+  path: '/',
+  redirect: () => {
+    const userRole = localStorage.getItem('librarian') ? 'librarian' : 'user';
+    if (userRole === 'user') {
+      return '/books';
+
+    } else if (userRole === 'librarian') {
+      return '/librarian';
+    }
+  }
+};
 
 
 const bookRoutes = [
   {
     path: '/books',
     name: 'books',
+    meta: { roles: ['user']},  
+
     components: {
-      default: HomeView,
+      default: BooksView,
       navbar: Navbar
     },
   },
@@ -36,7 +50,6 @@ const bookRoutes = [
 const librarianRoutes = [
   {
     path: '/librarian',
-    redirect: '/librarian',
     meta: { roles: ['librarian']},  
 
     children: [
@@ -81,7 +94,7 @@ const authRoutes = [
 
 
 const routes = [
-  ...authRoutes, ...bookRoutes, ...librarianRoutes
+  defaultRoute, ...authRoutes, ...bookRoutes, ...librarianRoutes
 ]
 
 const router = createRouter({
@@ -92,11 +105,13 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const userRole = localStorage.getItem('librarian') ? 'librarian' : 'user';
+
   if (to.meta.roles && !to.meta.roles.includes(userRole)) {
-    next('/books');
+    next('/')
   } else {
     next();
   }
+  
 });
 
 export default router
