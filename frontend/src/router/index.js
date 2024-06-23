@@ -108,11 +108,7 @@ const authRoutes = [
 
 
 const routes = [
-<<<<<<< HEAD
   defaultRoute, ...authRoutes, ...bookRoutes, ...librarianRoutes
-=======
-  ...authRoutes, ...bookRoutes, ...librarianRoutes, ...sectionRoutes
->>>>>>> a01973e71bc7387d86a5e371fd00590ed48420bd
 ]
 
 const router = createRouter({
