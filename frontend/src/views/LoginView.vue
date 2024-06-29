@@ -39,14 +39,14 @@
 import { ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-import createInfoModal from '@/services/modal.js';
+import { useStore } from 'vuex';
+import { createInfoModal } from '@/services/modal.js';
 
 const router = useRouter();
+const store = useStore();
 
 const email = ref('');
 const password = ref('');
-
-
 
 
 const login = async () => {
@@ -56,15 +56,15 @@ const login = async () => {
       password: password.value
     });
 
-    localStorage.setItem('authenticated', true);
+    store.dispatch('authenticated', true);
 
-
-    if(response.data.is_librarian === true){
-      localStorage.setItem('librarian', true);
+    if(response.data.is_librarian === true)
+    {
+      store.dispatch('librarian', true);
       router.push('/librarian');
-    } else {
-      router.push('/books');
-      
+    } else 
+    {  
+      router.push('/books');  
     }
 
   } catch (error) {

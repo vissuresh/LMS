@@ -1,6 +1,6 @@
 import Modal from 'bootstrap/js/dist/modal';
 
-const createInfoModal = (title, body) => {
+export const createInfoModal = (title, body) => {
     const modalElement = document.getElementById('infoModal');
     const modal = new Modal(modalElement);
     
@@ -12,5 +12,3 @@ const createInfoModal = (title, body) => {
 
     return modal;
 };
-
-export default createInfoModal;

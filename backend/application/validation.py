@@ -1,7 +1,7 @@
 from flask import jsonify, request
 from functools import wraps
 from application import db, jwt, models
-from flask_jwt_extended import jwt_required, get_jwt
+from flask_jwt_extended import jwt_required, get_jwt, unset_jwt_cookies
 from flask_jwt_extended.exceptions import CSRFError
 
 from application import app
@@ -90,18 +90,22 @@ def make_additional_claims(identity):
 
 @jwt.expired_token_loader
 def expired_token_callback(jwt_header, jwt_data):
-    return jsonify({
+    resp = jsonify({
         "message" : "Token has expired.",
         "error" : "token_expired"
-    }), 401
+    })
+    unset_jwt_cookies(resp)
+    return resp, 401
 
 
 @jwt.invalid_token_loader
 def invalid_token_callback(error):
-    return jsonify({
+    resp = jsonify({
         "message" : "Signature verification failed.",
         "error" : "invalid_token"
-    }), 401
+    })
+    unset_jwt_cookies(resp)
+    return resp, 401
 
 
 @jwt.unauthorized_loader
@@ -115,10 +119,12 @@ def missing_token_callback(error):
 
 @jwt.revoked_token_loader
 def revoked_token_callback(jwt_header, jwt_data):
-    return jsonify({
+    resp = jsonify({
         "message" : "Token has been revoked",
         "error" : "revoked_token"
-    }), 401
+    })
+    unset_jwt_cookies(resp)
+    return resp, 401
 
 ### End JWT Error Handlers
 

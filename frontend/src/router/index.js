@@ -7,12 +7,13 @@ import Navbar from '@/components/Navbar.vue'
 import LibrarianNavbar from '@/components/LibrarianNavbar.vue'
 import Dashboard from '@/views/librarian/Dashboard.vue'
 import SectionView from '@/views/SectionView.vue'
+import store from '@/store'
 
 
 const defaultRoute ={
   path: '/',
   redirect: () => {
-    const userRole = localStorage.getItem('librarian') ? 'librarian' : 'user';
+    const userRole = store.getters.isLibrarian ? 'librarian' : 'user';
     if (userRole === 'user') {
       return '/books';
 
@@ -52,6 +53,7 @@ const sectionRoutes = [
   {
     path: '/sections/:id',
     name: 'sections',
+    meta: { roles: ['user', 'librarian']},
     components: {
       default: SectionView,
       navbar: Navbar
@@ -68,8 +70,8 @@ const librarianRoutes = [
 
     children: [
       {
-        path: '/',
-        name: 'dashboard',
+        path: '',
+        name: 'LibrarianDashboard',
         components: {
           default: Dashboard,
           navbar: LibrarianNavbar
@@ -108,7 +110,7 @@ const authRoutes = [
 
 
 const routes = [
-  defaultRoute, ...authRoutes, ...bookRoutes, ...librarianRoutes
+  defaultRoute, ...authRoutes, ...bookRoutes, ...librarianRoutes, ...sectionRoutes
 ]
 
 const router = createRouter({
@@ -118,11 +120,27 @@ const router = createRouter({
 
 
 router.beforeEach((to, from, next) => {
-  const userRole = localStorage.getItem('librarian') ? 'librarian' : 'user';
+  const isAuthenticated = store.getters.isAuthenticated;
+  const userRole = store.getters.isLibrarian ? 'librarian' : 'user';
 
-  if (to.meta.roles && !to.meta.roles.includes(userRole)) {
+  if(!isAuthenticated){
+    if(to.name !== 'login' && to.name !== 'register'){
+      next('/auth/login');
+    }
+    else{
+      next();
+    }
+  }
+
+  else if(to.name === 'login' || to.name === 'register'){
+    next('/');
+  }
+
+  else if (to.meta.roles && !to.meta.roles.includes(userRole)) {
     next('/')
-  } else {
+  }
+  
+  else {
     next();
   }
   

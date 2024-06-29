@@ -44,6 +44,11 @@ class Librarian(db.Model):
     user_id = db.Column(db.String(), db.ForeignKey('user.id'))
 
 
+    @classmethod
+    def get_librarian(cls):
+        return cls.query.first().user_id
+
+
     def revoke_access(self, book_issue_id):
         book_issue = db.get_or_404(BookIssue, book_issue_id)
         book_issue.delete()

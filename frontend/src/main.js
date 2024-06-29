@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
+import store from './store'
 import axios from 'axios'
 
 import 'bootstrap/dist/css/bootstrap.css'
@@ -18,29 +19,31 @@ axios.interceptors.response.use(undefined, async function (error) {
     // Try to get new access token
     try {
       const response = await axios.get('auth/refresh');
-      localStorage.setItem('authenticated', true);
+      store.dispatch('authenticated', true);
 
 
       // If user is librarian, set librarian to true
       if(response.data.is_librarian === true){
-        localStorage.setItem('librarian', true);
+        store.dispatch('librarian', true);
       }
 
       // Retry the original request
       return axios(error.config);  
     }
     
-    // If refresh token is invalid, redirect to login
-    catch (e) {
-      router.push('/auth/login');
-    }
+    // If refresh token is invalid
+    catch (e) {}
 
-  }
-
-  // if not 401 or no error config or is a refresh request
+  }  
+  
+  router.push('/auth/login');
+  
+  store.dispatch('authenticated', false);
+  store.dispatch('librarian', false);
+  
   return Promise.reject(error);
 
 });
   
 
-createApp(App).use(router).mount('#app')
+createApp(App).use(router).use(store).mount('#app')

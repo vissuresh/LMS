@@ -11,7 +11,7 @@
             <router-link to="/books">Home</router-link>
           </li>
           <li class="nav-item">
-            <button class="btn btn-danger" v-if="authenticated" @click="handleLogout">Logout</button>
+            <button class="btn btn-danger" v-if="isAuthenticated" @click="handleLogout">Logout</button>
             <router-link v-else to="/auth/login">Login</router-link>
           </li>
         </ul>
@@ -21,16 +21,16 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
 import axios from 'axios';
 import { createInfoModal } from '@/services/modal';
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
+import { computed } from 'vue';
 
 const router = useRouter();
+const store = useStore();
 
-const authenticated = computed(() => localStorage.getItem('authenticated'));
-
-console.log(authenticated.value);
+const isAuthenticated = computed(() => store.state.authenticated);
 
 const handleLogout = async () => {
   let modal = null;
@@ -39,16 +39,18 @@ const handleLogout = async () => {
       const response = await axios.get('auth/logout');
       modal = createInfoModal('Logout', "Logout successful");
       
-
   } catch (error) {
       console.error('Error:', error);
       modal = createInfoModal('Logout', "Logout failed");
   }
 
+  store.dispatch('authenticated', false);
+  store.dispatch('librarian', false);
+
   modal.show();
   router.push('/auth/login');
-
 };
+
 </script>
 
 
