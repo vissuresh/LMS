@@ -3,6 +3,7 @@ from functools import wraps
 from application import db, jwt, models
 from flask_jwt_extended import jwt_required, get_jwt, unset_jwt_cookies
 from flask_jwt_extended.exceptions import CSRFError
+from .models import Librarian
 
 from application import app
 import traceback
@@ -76,10 +77,8 @@ def user_lookup_callback(__jwt_headers, jwt_data):
 
 @jwt.additional_claims_loader
 def make_additional_claims(identity):
-    
-    if identity == "ksjune13@gmail.com":
+    if Librarian.get_librarian_by_email(identity):
         return {"is_librarian":True}
-    
     return {"is_librarian":False}
 
 

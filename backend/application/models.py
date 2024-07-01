@@ -43,10 +43,17 @@ class Librarian(db.Model):
     id = db.Column(db.Integer, default = 1, primary_key = True)
     user_id = db.Column(db.String(), db.ForeignKey('user.id'))
 
+    user = db.relationship('User')
 
     @classmethod
-    def get_librarian(cls):
-        return cls.query.first().user_id
+    def get_all_librarians(cls):
+        librarian_objects = cls.query.all()
+        return [librarian.user.email for librarian in librarian_objects]
+    
+
+    @classmethod
+    def get_librarian_by_email(cls, email):
+        return cls.query.filter_by(user_id = User.get_user_by_email(email).id).first()
 
 
     def revoke_access(self, book_issue_id):
