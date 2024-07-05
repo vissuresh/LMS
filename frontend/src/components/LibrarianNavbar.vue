@@ -8,7 +8,7 @@
       <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
         <ul class="navbar-nav navbar-right">
           <li class="nav-item">
-            <router-link to="/librarian">Home</router-link>
+            <router-link to="/">Home</router-link>
           </li>
           <li class="nav-item">
             <button class="btn btn-danger" v-if="authenticated" @click="handleLogout">Logout</button>
@@ -25,8 +25,10 @@ import { computed } from 'vue';
 import axios from 'axios';
 import { createInfoModal } from '@/services/modal';
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 
 const router = useRouter();
+const store = useStore();
 
 const authenticated = computed(() => localStorage.getItem('authenticated'));
 
@@ -42,6 +44,9 @@ const handleLogout = async () => {
       console.error('Error:', error);
       modal = createInfoModal('Logout', "Logout failed");
   }
+
+  store.dispatch('authenticated', false);
+  store.dispatch('librarian', false);
 
   modal.show();
   router.push('/auth/login');

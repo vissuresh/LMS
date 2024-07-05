@@ -5,7 +5,8 @@ import RegisterView from '@/views/RegisterVue.vue'
 import BookView from '@/views/BookView.vue'
 import Navbar from '@/components/Navbar.vue'
 import LibrarianNavbar from '@/components/LibrarianNavbar.vue'
-import Dashboard from '@/views/librarian/Dashboard.vue'
+import LibrarianBooksView from '@/views/librarian/LibrarianBooksView.vue'
+import LibrarianDashboard from '@/views/librarian/LibrarianDashboard.vue'
 import SectionView from '@/views/SectionView.vue'
 import store from '@/store'
 
@@ -73,10 +74,18 @@ const librarianRoutes = [
         path: '',
         name: 'LibrarianDashboard',
         components: {
-          default: Dashboard,
+          default: LibrarianDashboard,
           navbar: LibrarianNavbar
         },
       },
+      {
+        path: 'books',
+        name: 'LibrarianBooks',
+        components: {
+          default: LibrarianBooksView,
+          navbar: LibrarianNavbar
+        },
+      }
     ],
   }
 ]

@@ -8,7 +8,7 @@
       <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
         <ul class="navbar-nav navbar-right">
           <li class="nav-item">
-            <router-link to="/books">Home</router-link>
+            <router-link to="/">Home</router-link>
           </li>
           <li class="nav-item">
             <button class="btn btn-danger" v-if="isAuthenticated" @click="handleLogout">Logout</button>

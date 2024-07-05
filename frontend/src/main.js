@@ -34,12 +34,15 @@ axios.interceptors.response.use(undefined, async function (error) {
     // If refresh token is invalid
     catch (e) {}
 
-  }  
-  
-  router.push('/auth/login');
-  
-  store.dispatch('authenticated', false);
-  store.dispatch('librarian', false);
+  }
+
+  else if (error.response.status === 401) {
+    router.push('/auth/login');
+    
+    store.dispatch('authenticated', false);
+    store.dispatch('librarian', false);
+
+  };
   
   return Promise.reject(error);
 
