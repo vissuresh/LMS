@@ -35,7 +35,7 @@ def check_librarian(route):
         claims = get_jwt()
         if claims.get("is_librarian") is False:
 
-            return jsonify({"message":"Unauthorized access"}), 401
+            return jsonify({"message":"Forbidden access"}), 403
         
         return route(*args, **kwargs)
     

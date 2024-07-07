@@ -42,7 +42,13 @@ axios.interceptors.response.use(undefined, async function (error) {
     store.dispatch('authenticated', false);
     store.dispatch('librarian', false);
 
-  };
+  }
+
+
+  else if(error.response.status === 403){
+    router.push('/');
+    store.dispatch('librarian', false);
+  }
   
   return Promise.reject(error);
 

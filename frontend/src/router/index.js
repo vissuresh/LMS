@@ -9,6 +9,7 @@ import LibrarianBooksView from '@/views/librarian/LibrarianBooksView.vue'
 import LibrarianDashboard from '@/views/librarian/LibrarianDashboard.vue'
 import SectionView from '@/views/SectionView.vue'
 import store from '@/store'
+import axios from 'axios'
 
 
 const defaultRoute ={
@@ -128,7 +129,22 @@ const router = createRouter({
 })
 
 
-router.beforeEach((to, from, next) => {
+
+async function isLibrarian(userRole, to) {
+  if(userRole === 'librarian' && to.path.includes('librarian')) {
+    try {
+      await axios.get('auth/isLibrarian');
+      return true;
+    } catch(error) {
+      console.log(error);
+      return false;
+    }
+  }
+  return true;
+}
+
+
+router.beforeEach( async (to, from, next) => {
   const isAuthenticated = store.getters.isAuthenticated;
   const userRole = store.getters.isLibrarian ? 'librarian' : 'user';
 
@@ -150,7 +166,12 @@ router.beforeEach((to, from, next) => {
   }
   
   else {
-    next();
+    const canProceed = await isLibrarian(userRole, to);
+    if(canProceed) {
+      next();
+    } else {
+      next('/');
+    }
   }
   
 });

@@ -51,19 +51,6 @@ def get_book(book_id):
 
 
 
-
-@book_bp.get('/<int:book_id>/comments')
-@jwt_required() 
-def get_book_feedback(book_id):
-    book = Book.query.get_or_404(book_id)
-
-    return jsonify(
-        FeedbackSchema().dump(book.feedback, many=True)
-    ), 200
-
-
-
-
 @book_bp.get('/user')
 @jwt_required()
 def get_user_books():
@@ -110,3 +97,49 @@ def delete_book(book_id):
     book.delete()
 
     return jsonify({"message":"success"}), 200
+
+
+
+
+@book_bp.get('/authors/all')
+@jwt_required()
+def get_all_authors():
+    authors = db.session.query(Book.author).distinct().all()
+
+    return jsonify({"authors": authors}), 200
+
+
+
+
+@book_bp.get('/<int:book_id>/comments')
+@jwt_required() 
+def get_book_feedback(book_id):
+    book = Book.query.get_or_404(book_id)
+
+    return jsonify(
+        FeedbackSchema().dump(book.feedback, many=True)
+    ), 200
+
+
+@book_bp.post('/<int:book_id>/comments')
+@jwt_required()
+def submit_feedback(book_id):
+    book = Book.query.get_or_404(book_id)
+    feedback = FeedbackSchema().load(request.json, session=db.session)
+    feedback.book = book
+    feedback.user = current_user
+    feedback.save()
+
+    update_book_rating(book)
+
+    return jsonify({"message":"success"}), 201
+
+
+
+def calculate_average_rating(feedback):
+    return round(sum([f.rating for f in feedback]) / len(feedback), 2) if feedback else None
+
+
+def update_book_rating(book):
+    book.rating = calculate_average_rating(book.feedback)
+    db.session.commit()

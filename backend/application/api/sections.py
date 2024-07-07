@@ -19,6 +19,12 @@ def get_all_sections():
     page = request.args.get('page', default=1, type=int)
     per_page = request.args.get('per_page', default=10, type=int)
 
+    if not page:
+        sections = Section.query.all()
+        result = SectionSchema().dump(sections, many=True)
+        return jsonify({"sections": result}), 200
+    
+
     try:
         sections = Section.query.paginate(
             page = page,

@@ -19,23 +19,29 @@
 
 <script setup>
 import { defineProps } from 'vue';
+import { ref } from 'vue';
 
 const props = defineProps({
   currentPage: Number,
   totalPages: Number,
-  startPage: Number,
-  endPage: Number,
   fetchData: Function
 });
+
+const startPage = ref(1);
+const endPage = ref(0);
+endPage.value = Math.min(3, props.totalPages);
+
+if (props.currentPage > props.endPage) {
+    props.startPage += 3;
+    props.endPage = Math.min(props.endPage + 3, props.totalPages);
+} else if (props.currentPage < props.startPage) {
+    props.startPage -= 3;
+    props.endPage = Math.min(props.endPage, props.currentPage);
+}
 </script>
 
 
 <style scoped>
-.pagination-container {
-  align-self: flex-end;
-}
-
-
 .page-link {
   cursor: pointer;
 }

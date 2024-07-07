@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, make_response
-from application.validation import require_keys
+from application.validation import require_keys, check_librarian
 from application import db, app
 from application.models import User, TokenBlocklist
 from sqlalchemy.exc import SQLAlchemyError
@@ -100,6 +100,13 @@ def whoami():
             "name": current_user.name
         }
     })
+
+
+
+@auth_bp.get('/isLibrarian')
+@check_librarian
+def is_librarian():
+    return "OK", 200
 
 
 
