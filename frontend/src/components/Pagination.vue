@@ -18,8 +18,7 @@
 
 
 <script setup>
-import { defineProps } from 'vue';
-import { ref } from 'vue';
+import { defineProps, ref } from 'vue';
 
 const props = defineProps({
   currentPage: Number,
@@ -31,12 +30,12 @@ const startPage = ref(1);
 const endPage = ref(0);
 endPage.value = Math.min(3, props.totalPages);
 
-if (props.currentPage > props.endPage) {
-    props.startPage += 3;
-    props.endPage = Math.min(props.endPage + 3, props.totalPages);
-} else if (props.currentPage < props.startPage) {
-    props.startPage -= 3;
-    props.endPage = Math.min(props.endPage, props.currentPage);
+if (props.currentPage > endPage.value) {
+    startPage.value += 3;
+    endPage.value = Math.min(endPage.value + 3, props.totalPages);
+} else if (props.currentPage < startPage.value) {
+    startPage.value -= 3;
+    endPage.value = Math.min(endPage.value, props.currentPage);
 }
 </script>
 

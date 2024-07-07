@@ -1,13 +1,22 @@
 <template>
-    <div class="container custom-container">
+    <div class="container-fluid  custom-container">
         <div class="d-flex">
             <FilterSidebar class="mr-5"/>
 
             <div class="content-wrapper flex-grow-1">
 
                 <div class="row d-flex justify-content-end mb-4">
-                    <div class="col-4">
-                        <input type="text" class="form-control" v-model="searchQuery" placeholder="Search books..." />
+                    <div class="col-6">
+                        
+                        <div class="input-group mb-3">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Book Name</button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">Book Name</a></li>
+                                <li><a class="dropdown-item" href="#">Book ID</a></li>
+                            </ul>
+                            <input type="text" class="form-control" v-model="searchQuery" placeholder="Search books..." />
+                        </div>
+
                     </div>
                     <div class="col-auto">
                         <button class="btn btn-outline-primary" @click="fetchBooks(1)">Search</button>
@@ -44,7 +53,7 @@
                 </div>
                 
 
-                <div class="pagination-container">
+                <div v-if="totalPages > 0">
                     <Pagination :currentPage="currentPage" :totalPages="totalPages" :fetchData="fetchBooks" />
                 </div>
 
@@ -73,10 +82,6 @@ const selectedAuthors = computed(() => store.getters.selectedAuthors);
 const selectedRating = computed(() => store.getters.selectedRating);
 
 const fetchBooks = async (page) => {
-    console.log(selectedSections.value);
-    console.log(selectedAuthors.value);
-    console.log(selectedRating.value);
-
     try {
         const queryParams = new URLSearchParams({
                 query: searchQuery.value,

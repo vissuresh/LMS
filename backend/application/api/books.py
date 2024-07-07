@@ -20,6 +20,9 @@ def get_all_books():
     search_query = request.args.get('query')
     sections = request.args.get('sections', '').split(',') if request.args.get('sections') else []
     authors = request.args.get('authors', '').split(',') if request.args.get('authors') else []
+    rating = int(request.args.get('rating', 0))
+
+    print("================= RATING : ", rating)
 
     book_query = Book.query
 
@@ -31,6 +34,10 @@ def get_all_books():
 
     if authors:
         book_query = book_query.filter(Book.author.in_(authors))
+
+    if rating:
+        book_query = book_query.filter(Book.rating >= rating)
+
     
     
 

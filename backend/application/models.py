@@ -108,6 +108,8 @@ class Book(db.Model):
     issued = db.Column(db.Integer, nullable = False, default = 0)
     path = db.Column(db.String(128), nullable = False)
 
+    rating = db.Column(db.Float, default = 0.0, nullable=False)
+
     section = db.relationship('Section', backref='books')
     feedback = db.relationship('Feedback', backref='book', cascade = 'all, delete')
 

@@ -1,0 +1,92 @@
+BEGIN TRANSACTION;
+CREATE TABLE IF NOT EXISTS "user" (
+	"id"	VARCHAR NOT NULL,
+	"email"	VARCHAR NOT NULL,
+	"password_hash"	VARCHAR(128) NOT NULL,
+	"name"	VARCHAR NOT NULL,
+	UNIQUE("email"),
+	PRIMARY KEY("id")
+);
+CREATE TABLE IF NOT EXISTS "librarian" (
+	"id"	INTEGER NOT NULL,
+	"user_id"	VARCHAR,
+	FOREIGN KEY("user_id") REFERENCES "user"("id"),
+	PRIMARY KEY("id")
+);
+CREATE TABLE IF NOT EXISTS "book" (
+	"id"	INTEGER NOT NULL,
+	"name"	VARCHAR(64) NOT NULL,
+	"author"	VARCHAR(64) NOT NULL,
+	"section_id"	INTEGER,
+	"copies"	INTEGER NOT NULL,
+	"issued"	INTEGER NOT NULL,
+	"path"	VARCHAR(128) NOT NULL,
+	"desc"	VARCHAR(128),
+	"picture"	BLOB,
+	FOREIGN KEY("section_id") REFERENCES "section"("id"),
+	PRIMARY KEY("id")
+);
+CREATE TABLE IF NOT EXISTS "book_issue" (
+	"id"	INTEGER NOT NULL,
+	"user_id"	VARCHAR,
+	"book_id"	INTEGER,
+	"issued_at"	DATETIME NOT NULL,
+	"expiry"	DATETIME NOT NULL,
+	FOREIGN KEY("user_id") REFERENCES "user"("id"),
+	FOREIGN KEY("book_id") REFERENCES "book"("id"),
+	PRIMARY KEY("id")
+);
+CREATE TABLE IF NOT EXISTS "book_request" (
+	"id"	INTEGER NOT NULL,
+	"user_id"	VARCHAR,
+	"book_id"	INTEGER,
+	"requested_at"	DATETIME NOT NULL,
+	FOREIGN KEY("book_id") REFERENCES "book"("id"),
+	PRIMARY KEY("id"),
+	FOREIGN KEY("user_id") REFERENCES "user"("id")
+);
+CREATE TABLE IF NOT EXISTS "section" (
+	"id"	INTEGER NOT NULL,
+	"name"	VARCHAR(64) NOT NULL,
+	"date_created"	DATE NOT NULL,
+	"desc"	VARCHAR(32),
+	PRIMARY KEY("id")
+);
+CREATE TABLE IF NOT EXISTS "feedback" (
+	"id"	INTEGER NOT NULL,
+	"user_id"	VARCHAR,
+	"book_id"	INTEGER,
+	"comment"	VARCHAR(128) NOT NULL,
+	"rating"	INTEGER NOT NULL,
+	FOREIGN KEY("book_id") REFERENCES "book"("id"),
+	FOREIGN KEY("user_id") REFERENCES "user"("id"),
+	PRIMARY KEY("id")
+);
+INSERT INTO "user" VALUES ('a416b86c-c5cd-449c-ab0a-974abda306c9','ksjune13@gmail.com','scrypt:32768:8:1$c0EPFxMflMn0mpxg$664b70d7ab2c4bda09bc755dbfda127ce4878096c6d8c329a676ca4fbb27de4216e182d3b07f48e042244059e3967a9c07e9b24d672d546f1c2cb94cfd61a35f','Kishore Suresh');
+INSERT INTO "user" VALUES ('d3c022ab-ce25-4b5b-94f2-02b39a1ab519','new@gmail.com','scrypt:32768:8:1$e2d3FRZzFySgVEma$c7ea003f4ec7338bae4be80dcac3bc32228e52c8022a6ff6af9f52ad19ac6ea3e4f054636edcd18bcbe6989e552bbc4030fff179c196c0909b0ee134f856d12f','New');
+INSERT INTO "librarian" VALUES (1,'d3c022ab-ce25-4b5b-94f2-02b39a1ab519');
+INSERT INTO "book" VALUES (1,'Harry Potter and the Sorcerer''s Stone','J.K. Rowling',1,4,1,'/books/fiction/hp1.pdf','The first novel in the immensely popular Harry Potter series by British writer J.K. Rowling. It was first published in Britain in 1997 and appeared in the United States the following year under the title Harry Potter and the Sorcerer’s Stone. The book’s imaginative story line about a boy wizard made it an enduring hit with both children and adults.',NULL);
+INSERT INTO "book" (id, name, author, section_id, copies, issued, path, desc, picture, rating) VALUES (2,'Harry Potter and the Chamber of Secrets','J.K. Rowling',1,7,0,'/books/fiction/hp2.pdf','The second novel in the Harry Potter series, written by J. K. Rowling.',NULL, 0);
+INSERT INTO "book" (id, name, author, section_id, copies, issued, path, desc, picture, rating) VALUES (3,'To Kill a Mockingbird','Harper Lee',1,10,0,'/books/To_Kill_a_Mockingbird.pdf','A novel by Harper Lee published in 1960.',NULL, 0);
+INSERT INTO "book" (id, name, author, section_id, copies, issued, path, desc, picture, rating) VALUES (4,'1984','George Orwell',2,12,0,'/books/1984.pdf','A dystopian novel by George Orwell published in 1949.',NULL, 0);
+INSERT INTO "book" (id, name, author, section_id, copies, issued, path, desc, picture, rating) VALUES (5,'The Great Gatsby','F. Scott Fitzgerald',3,7,0,'/books/The_Great_Gatsby.pdf','A 1925 novel written by American author F. Scott Fitzgerald.',NULL, 0);
+INSERT INTO "book" (id, name, author, section_id, copies, issued, path, desc, picture, rating) VALUES (6,'Moby Dick','Herman Melville',4,9,0,'/books/Moby_Dick.pdf','An 1851 novel by Herman Melville.',NULL, 0);
+INSERT INTO "book" (id, name, author, section_id, copies, issued, path, desc, picture, rating) VALUES (7,'War and Peace','Leo Tolstoy',5,11,0,'/books/War_and_Peace.pdf','A novel by the Russian author Leo Tolstoy, published in serial installments from 1865 to 1867.',NULL, 0);
+INSERT INTO "book" (id, name, author, section_id, copies, issued, path, desc, picture, rating) VALUES (8,'The Catcher in the Rye','J.D. Salinger',6,8,0,'/books/The_Catcher_in_the_Rye.pdf','A novel by J. D. Salinger, partially published in serial form in 1945–1946.',NULL, 0);
+INSERT INTO "book" (id, name, author, section_id, copies, issued, path, desc, picture, rating) VALUES (9,'The Hobbit','J.R.R. Tolkien',1,13,0,'/books/The_Hobbit.pdf','A children''s fantasy novel by English author J. R. R. Tolkien.',NULL, 0);
+INSERT INTO "book" (id, name, author, section_id, copies, issued, path, desc, picture, rating) VALUES (10,'The Da Vinci Code','Dan Brown',2,14,0,'/books/The_Da_Vinci_Code.pdf','A 2003 mystery thriller novel by Dan Brown.',NULL, 0);
+INSERT INTO "book" (id, name, author, section_id, copies, issued, path, desc, picture, rating) VALUES (11,'The Alchemist','Paulo Coelho',3,15,0,'/books/The_Alchemist.pdf','A novel by Brazilian author Paulo Coelho that was first published in 1988.',NULL, 0);
+INSERT INTO "book" (id, name, author, section_id, copies, issued, path, desc, picture, rating) VALUES (12,'The Lord of the Rings','J.R.R. Tolkien',4,10,0,'/books/The_Lord_of_the_Rings.pdf','An epic high-fantasy novel written by English author and scholar J. R. R. Tolkien.',NULL, 0);
+INSERT INTO "book" (id, name, author, section_id, copies, issued, path, desc, picture, rating) VALUES (13,'A Game of Thrones','George R. R. Martin',5,12,0,'/books/A_Game_of_Thrones.pdf','The first novel in A Song of Ice and Fire, a series of fantasy novels by American author George R. R. Martin.',NULL, 0);
+INSERT INTO "book" (id, name, author, section_id, copies, issued, path, desc, picture, rating) VALUES (14,'Harry Potter and the Prisoner of Azkaban','J.K. Rowling',6,14,0,'/books/prisoner_of_azkaban.pdf','The third novel in the Harry Potter series, written by J. K. Rowling.',NULL, 0);
+INSERT INTO "book_issue" VALUES (1,'d3c022ab-ce25-4b5b-94f2-02b39a1ab519',1,'2024-03-31 16:37:53.706893','2024-04-07 16:37:53.706893');
+INSERT INTO "book_request" VALUES (1,'d3c022ab-ce25-4b5b-94f2-02b39a1ab519',2,'2024-04-06 12:20:25.760161');
+INSERT INTO "book_request" VALUES (2,'d3c022ab-ce25-4b5b-94f2-02b39a1ab519',3,'2024-04-07 07:44:22.342447');
+INSERT INTO "section" VALUES (1,'Fiction','2024-03-20','This section contains novels and other works of prose fiction.');
+INSERT INTO "section" VALUES (2,'Non-Fiction','2022-02-15','This section includes factual and informative books.');
+INSERT INTO "section" VALUES (3,'Science','2022-03-30','Books in this section cover various scientific disciplines.');
+INSERT INTO "section" VALUES (4,'History','2022-04-14','This section is dedicated to books about historical events and figures.');
+INSERT INTO "section" VALUES (5,'Biography','2022-05-29','Biographies and autobiographies of notable individuals are found in this section.');
+INSERT INTO "section" VALUES (6,'Fantasy','2022-06-13','This section houses books that explore magical and fantastical themes.');
+INSERT INTO "feedback" VALUES (1,'d3c022ab-ce25-4b5b-94f2-02b39a1ab519',1,'My favourite book.',4);
+COMMIT;
