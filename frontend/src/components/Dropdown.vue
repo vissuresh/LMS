@@ -19,8 +19,9 @@
 
 
 <script setup>
-import { ref, computed, defineProps } from 'vue';
+import { ref, computed, defineProps, defineEmits } from 'vue';
 
+const emits = defineEmits(['updateValue']);
 const props = defineProps({
     options: {
     type: Array,
@@ -45,6 +46,7 @@ const filteredOptions = computed(() => {
 const selectOption = (option) => {
   if (!selectedOptions.value.includes(option)) {
     selectedOptions.value.push(option);
+    emits('updateValue', selectedOptions);
   }
   searchQuery.value = '';
 };
@@ -54,6 +56,7 @@ const removeOption = (option) => {
   if (index > -1) {
     selectedOptions.value.splice(index, 1);
   }
+  emits('updateValue', selectedOptions);
 };
 </script>
 

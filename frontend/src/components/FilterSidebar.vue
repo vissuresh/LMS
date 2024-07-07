@@ -2,32 +2,31 @@
 
     <div class="card text-center">
       <div class="card-header">
-        Apply Filters
+        Select Filters
       </div>
       <div class="card-body">
         <ul class="list-group list-group-flush">
+
           <li class="list-group-item mb-5">
             <h5 class="card-title">Sections</h5>
-            <Dropdown :options="sections" :title="'Sections'" />
+            <Dropdown :options="sections" :title="'Sections'" @updateValue="handleSectionsEvent" />
           </li>
+
           <li class="list-group-item mb-5">
             <h5 class="card-title">Authors</h5>
-            <Dropdown :options="authors" :title="'Authors'" />
+            <Dropdown :options="authors" :title="'Authors'" @updateValue="handleAuthorsEvent" />
           </li>
 
           <li class="list-group-item ">
             <h5 class="card-title">Rating</h5>
-            <div class="btn-group btn-warning" role="group">
-              <template v-for="num in 5">
-              <input type="radio" class="btn-check" :name="'rating' + num" :id="'rating' + num" :value="num" v-model="rating">
-              <label class="btn btn-outline-primary btn-sm " :for="'rating' + num">{{ num }}</label>
-              </template>
-              <button class="btn btn-outline-primary btn-sm btn-outline-danger " @click="rating = null">Clear</button>
-            </div>
-            
+            <Rating @updateValue="handleRatingEvent" />
           </li>
 
         </ul>
+      </div>
+
+      <div class="card-footer">
+        <button class="btn btn-primary btn-sm" @click="applyFilters" >Apply Filters</button>
       </div>
     
     </div>
@@ -37,11 +36,41 @@
 <script setup>
   import { ref, onMounted } from 'vue';
   import Dropdown from '@/components/Dropdown.vue';
+  import Rating from '@/components/Rating.vue';
   import axios from 'axios';
-  
+  import { useStore } from 'vuex';
+  import { createInfoModal } from '@/services/modal';
+
+  const store = useStore();
+
   const sections = ref([]);
   const authors = ref([]);
-  const rating = ref(null);
+
+  const selectedSections = ref([]);
+  const selectedAuthors = ref([]);
+  const selectedRating = ref(0);
+
+  const handleSectionsEvent = (sections) => {
+    selectedSections.value = sections.value;
+  };
+
+  const handleAuthorsEvent = (authors) => {
+    selectedAuthors.value = authors.value;
+  };
+
+  const handleRatingEvent = (rating) => {
+    selectedRating.value = rating;
+  };
+
+  const applyFilters = () => {
+    store.dispatch('setFilters', {
+      sections: selectedSections.value,
+      authors: selectedAuthors.value,
+      rating: selectedRating.value
+    });
+
+    createInfoModal('Filters', 'Filters have been applied.').show();
+  };
 
 
   onMounted(async () => {
@@ -60,6 +89,7 @@
     }
 
   });
+
 </script>
   
 <style scoped>
@@ -70,9 +100,9 @@
 }
 
 .card {
-  width: 300px; /* Fixed width */
-  border: 1px solid #ccc; /* Just for visual clarity */
-  padding: 1px;
+  width: 15vw;
+  height: 80vh;
+  overflow-y: auto;
 
   display: flex; /* New */
   flex-direction: column; /* New */
@@ -82,7 +112,7 @@
 .card-body {
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Distributes space equally */
+  justify-content: center; /* Distributes space equally */
   align-items: center; /* Centers items horizontally */
   flex-grow: 1; /* Allows the body to expand */
 }

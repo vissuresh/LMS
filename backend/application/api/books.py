@@ -14,12 +14,28 @@ book_bp = Blueprint(
 @book_bp.get('/all')
 @jwt_required()
 def get_all_books():
-    
     page = request.args.get('page', default=1, type=int)
-    per_page = request.args.get('per_page', default=12, type=int)
+    per_page = request.args.get('per_page', default=10, type=int)
+
+    search_query = request.args.get('query')
+    sections = request.args.get('sections', '').split(',') if request.args.get('sections') else []
+    authors = request.args.get('authors', '').split(',') if request.args.get('authors') else []
+
+    book_query = Book.query
+
+    if search_query not in [None, '']:
+        book_query = book_query.filter(Book.name.ilike(f"%{search_query}%"))
+
+    if sections:
+        book_query = book_query.filter(Book.section_id.in_(sections))
+
+    if authors:
+        book_query = book_query.filter(Book.author.in_(authors))
+    
+    
 
     try:
-        books = Book.query.paginate(
+        books = book_query.paginate(
             page = page,
             per_page = per_page
         )
@@ -106,7 +122,12 @@ def delete_book(book_id):
 def get_all_authors():
     authors = db.session.query(Book.author).distinct().all()
 
-    return jsonify({"authors": authors}), 200
+    authors_list = []
+    for i in range(len(authors)):
+        author_obj = {"id": i, "name": authors[i][0]}
+        authors_list.append(author_obj)
+
+    return jsonify({"authors": authors_list}), 200
 
 
 

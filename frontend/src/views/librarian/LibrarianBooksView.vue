@@ -5,18 +5,18 @@
 
             <div class="content-wrapper flex-grow-1">
 
-                <div class="row mb-5">
-                    <div class="col">
+                <div class="row d-flex justify-content-end mb-4">
+                    <div class="col-4">
                         <input type="text" class="form-control" v-model="searchQuery" placeholder="Search books..." />
                     </div>
-                    <div class="col">
-                        <button class="btn btn-outline-secondary" @click="searchBooks">Search</button>
+                    <div class="col-auto">
+                        <button class="btn btn-outline-primary" @click="fetchBooks(1)">Search</button>
                     </div>
                 </div>
 
                 <div class="flex-column-container">
-                    <table class="table table-striped">
-                    <thead>
+                    <table class="table table-striped table-hover ">
+                    <thead class="table-dark">
                         <tr>
                             <th>ID</th>
                             <th>Name</th>
@@ -27,7 +27,7 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="table-group-divider">
                         <tr v-for="book in books" :key="book.id">
                             <td>{{ book.id }}</td>
                             <td>{{ book.name }}</td>
@@ -55,18 +55,38 @@
 
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
+import { useStore } from 'vuex';
 import axios from 'axios';
 import Pagination from '@/components/Pagination.vue';
 import FilterSidebar from '@/components/FilterSidebar.vue';
+
+const store = useStore();
 
 const books = ref([]);
 const totalPages = ref(0);
 const currentPage = ref(1);
 
+const searchQuery = ref('');
+const selectedSections = computed(() => store.getters.selectedSections);
+const selectedAuthors = computed(() => store.getters.selectedAuthors);
+const selectedRating = computed(() => store.getters.selectedRating);
+
 const fetchBooks = async (page) => {
+    console.log(selectedSections.value);
+    console.log(selectedAuthors.value);
+    console.log(selectedRating.value);
+
     try {
-        const response = await axios.get(`books/all?page=${page}&per_page=10`);
+        const queryParams = new URLSearchParams({
+                query: searchQuery.value,
+                sections: selectedSections.value.map(section => section.id),
+                authors: selectedAuthors.value.map(author => author.name),
+                rating: selectedRating.value
+            }).toString();
+
+
+        const response = await axios.get(`books/all?page=${page}&per_page=10&${queryParams}`);
 
         books.value = response.data.books;
         totalPages.value = response.data.pagination.pages;
@@ -79,22 +99,6 @@ const fetchBooks = async (page) => {
 
 
 
-
-const searchBooks = async () => {
-    if (searchQuery.value.trim()) {
-        try {
-            const response = await axios.get(`/books/search?query=${encodeURIComponent(searchQuery.value)}`);
-            books.value = response.data;
-            // Reset pagination if necessary
-        } catch (error) {
-            console.error("Failed to search books:", error);
-        }
-    }
-};
-
-
-
-
 onMounted(async () => {
    await fetchBooks(currentPage.value);
 });
@@ -103,7 +107,7 @@ onMounted(async () => {
 <style scoped>
 
 .custom-container {
-  max-width: 90%; /* Adjust this value as needed */
+  max-width: 90%;
   margin-right: auto;
   margin-left: auto;
 }
@@ -115,14 +119,14 @@ onMounted(async () => {
 }
 
 .content-wrapper {
-  margin-left: 20px; /* Adjust the space as needed */
+  margin-left: 2%;
 }
 
 
 .content-wrapper {
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* This will push the pagination to the bottom */
-  height: 100%; /* Ensure it takes full height */
+  justify-content: space-between;
+  height: 80vh;
 }
 </style>
