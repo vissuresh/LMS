@@ -9,12 +9,17 @@
                     <div class="col-6">
                         
                         <div class="input-group mb-3">
-                            <button v-if="search_by === 'book_name'" class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Book Name</button>
-                            <button v-else class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Book ID</button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" @click="search_by = 'book_name'">Book Name</a></li>
-                                <li><a class="dropdown-item" @click="search_by = 'book_id'">Book ID</a></li>
-                            </ul>
+
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" @click="dropdownOpen = !dropdownOpen">
+                                {{ search_by === 'book_name' ? 'Book Name' : 'Book ID' }}
+                                </button>
+                                <ul class="dropdown-menu" :class="{ show: dropdownOpen }">
+                                <li><a class="dropdown-item clickable" @click="selectOption('book_name')">Book Name</a></li>
+                                <li><a class="dropdown-item clickable" @click="selectOption('book_id')">Book ID</a></li>
+                                </ul>
+                            </div>
+
                             <input type="text" class="form-control" v-model="searchQuery" placeholder="Search books..." />
                         </div>
 
@@ -82,19 +87,26 @@ const selectedSections = computed(() => store.getters.selectedSections);
 const selectedAuthors = computed(() => store.getters.selectedAuthors);
 const selectedRating = computed(() => store.getters.selectedRating);
 
+const dropdownOpen = ref(false);
 const search_by = ref('book_name');
+
+const selectOption = (option) => {
+    search_by.value = option;
+    dropdownOpen.value = false;
+};
 
 const fetchBooks = async (page) => {
     try {
         const queryParams = new URLSearchParams({
                 query: searchQuery.value,
+                search_by: search_by.value,
                 sections: selectedSections.value.map(section => section.id),
                 authors: selectedAuthors.value.map(author => author.name),
                 rating: selectedRating.value
             }).toString();
 
 
-        const response = await axios.get(`books/all?page=${page}&per_page=12&${queryParams}`);
+        const response = await axios.get(`books/all?page=${page}&per_page=11&${queryParams}`);
 
         books.value = response.data.books;
         totalPages.value = response.data.pagination.pages;
@@ -113,6 +125,10 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+
+.clickable { 
+    cursor: pointer;
+}
 
 .custom-container {
   max-width: 90%;

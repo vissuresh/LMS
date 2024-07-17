@@ -17,6 +17,7 @@ def get_all_books():
     page = request.args.get('page', default=1, type=int)
     per_page = request.args.get('per_page', default=10, type=int)
 
+    search_by = request.args.get('search_by', 'book_name')
     search_query = request.args.get('query')
     sections = request.args.get('sections', '').split(',') if request.args.get('sections') else []
     authors = request.args.get('authors', '').split(',') if request.args.get('authors') else []
@@ -27,7 +28,10 @@ def get_all_books():
     book_query = Book.query
 
     if search_query not in [None, '']:
-        book_query = book_query.filter(Book.name.ilike(f"%{search_query}%"))
+        if search_by == 'book_name':
+            book_query = book_query.filter(Book.name.ilike(f"%{search_query}%"))
+        elif search_by == 'book_id':
+            book_query = book_query.filter(Book.id == search_query)
 
     if sections:
         book_query = book_query.filter(Book.section_id.in_(sections))
