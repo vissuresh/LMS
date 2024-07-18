@@ -1,3 +1,5 @@
+import base64
+from marshmallow import fields
 from application import db, ma
 from application.models import User, Book, Section, BookIssue, BookRequest, Feedback
 
@@ -24,6 +26,17 @@ class SectionSchema(ma.SQLAlchemyAutoSchema):
 
 
 
+class Base64FileField(fields.Field):
+    def _serialize(self, value, attr, obj, **kwargs):
+        if value is not None:
+            return base64.b64encode(value).decode('utf-8')
+        
+    def _deserialize(self, value, attr, data, **kwargs):
+        if value is not None:
+            return base64.b64decode(value)
+        
+    
+
 class BookSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Book
@@ -31,7 +44,8 @@ class BookSchema(ma.SQLAlchemyAutoSchema):
         
     id = ma.auto_field(dump_only = True)
     section = ma.Nested(SectionSchema(only=('id', 'name')), dump_only = True)
-
+    section_id = ma.auto_field(load_only=True)
+    picture = Base64FileField()
 
 
 class FeedbackSchema(ma.SQLAlchemyAutoSchema):

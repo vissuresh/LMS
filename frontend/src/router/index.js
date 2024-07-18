@@ -7,6 +7,7 @@ import Navbar from '@/components/Navbar.vue'
 import LibrarianNavbar from '@/components/LibrarianNavbar.vue'
 import LibrarianBooksView from '@/views/librarian/LibrarianBooksView.vue'
 import LibrarianDashboard from '@/views/librarian/LibrarianDashboard.vue'
+import LibrarianBookEditView from '@/views/librarian/LibrarianBookEditView.vue'
 import SectionView from '@/views/SectionView.vue'
 import store from '@/store'
 import axios from 'axios'
@@ -84,6 +85,14 @@ const librarianRoutes = [
         name: 'LibrarianBooks',
         components: {
           default: LibrarianBooksView,
+          navbar: LibrarianNavbar
+        },
+      },
+      {
+        path:"book/:id",
+        name: 'LibrarianBookEditView',
+        components: {
+          default: LibrarianBookEditView,
           navbar: LibrarianNavbar
         },
       }

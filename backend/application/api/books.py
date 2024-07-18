@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required, current_user
 from application.models import Book
 from application.schemas import BookSchema, FeedbackSchema
 from application.validation import check_librarian
-from application import db
+from application import db, app
 
 book_bp = Blueprint(
     'books',
@@ -22,8 +22,6 @@ def get_all_books():
     sections = request.args.get('sections', '').split(',') if request.args.get('sections') else []
     authors = request.args.get('authors', '').split(',') if request.args.get('authors') else []
     rating = int(request.args.get('rating', 0))
-
-    print("================= RATING : ", rating)
 
     book_query = Book.query
 
@@ -104,13 +102,19 @@ def update_book(book_id):
     book = Book.query.get_or_404(book_id)
     
     new_copies = request.json.get('copies')
-    if new_copies and new_copies < book.issued:
+    if (new_copies is not None) and (new_copies < book.issued):
         return jsonify({
             "status" : "error",
             "message" : "\'copies\' is less than \'issued\'"
         }), 400
     
+    request.json.pop('issued', None)
+    request.json.pop('rating', None)
+    request.json.pop('id', None)
+    request.json.pop('path', None)
+    
     BookSchema().load(request.json, instance=book, session=db.session, partial=True)
+    
     book.save()
     
     return jsonify({"message":"success"}), 200
