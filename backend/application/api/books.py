@@ -1,9 +1,12 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, current_user
 from application.models import Book
 from application.schemas import BookSchema, FeedbackSchema
 from application.validation import check_librarian
-from application import db, app
+from application import db
+from werkzeug.utils import secure_filename
+import os
+import json
 
 book_bp = Blueprint(
     'books',
@@ -14,6 +17,10 @@ book_bp = Blueprint(
 @book_bp.get('/all')
 @jwt_required()
 def get_all_books():
+    print("App root path", current_app.root_path)
+    print("App static path", current_app.static_folder)
+    print("App instance path", current_app.instance_path)
+    
     page = request.args.get('page', default=1, type=int)
     per_page = request.args.get('per_page', default=10, type=int)
 
@@ -100,22 +107,44 @@ def create_book():
 @check_librarian
 def update_book(book_id):
     book = Book.query.get_or_404(book_id)
+
+    data = json.loads(request.form.get('data'))
     
-    new_copies = request.json.get('copies')
+    new_copies = data.get('copies')
     if (new_copies is not None) and (new_copies < book.issued):
         return jsonify({
             "status" : "error",
             "message" : "\'copies\' is less than \'issued\'"
         }), 400
     
-    request.json.pop('issued', None)
-    request.json.pop('rating', None)
-    request.json.pop('id', None)
-    request.json.pop('path', None)
+
+    data.pop('book_file', None)
+    data.pop('issued', None)
+    data.pop('rating', None)
+    data.pop('id', None)
+    data.pop('path', None)
     
-    BookSchema().load(request.json, instance=book, session=db.session, partial=True)
+    file = request.files.get('file')
+    if file and file.filename != '':
+        filename = secure_filename(file.filename)
     
+
+        if file.filename != '':
+            file_extension = filename.split('.')[-1]
+            if file_extension not in ['pdf', 'epub']:
+                return jsonify({
+                    "error": "Invalid book file format. Only PDF and EPUB files are allowed"
+                }), 400 
+            books_dir = current_app.config['BOOKS_DIR']
+            file_path = os.path.join(books_dir, f'{book_id}.{file_extension}')
+
+            book.path = file_path
+
+
+    BookSchema().load(data, instance=book, session=db.session, partial=True)
     book.save()
+    file.save(book.path)
+
     
     return jsonify({"message":"success"}), 200
 

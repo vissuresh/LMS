@@ -137,6 +137,10 @@ const onFileChange = (e) => {
 
 
 const saveBook = async () => {
+    let formData = new FormData();
+    if (newBook.value.book_file) {
+        formData.append('file', newBook.value.book_file);
+    }
     const data = {};
     Object.keys(editableFields.value).forEach(key => {
         if (editableFields.value[key]) {
@@ -144,8 +148,15 @@ const saveBook = async () => {
         }
     });
 
+    formData.append('data', JSON.stringify(data));
+
     try{
-        const response = await axios.patch(`/books/${bookId}`, data);
+        const response = await axios.patch(`/books/${bookId}`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        
         const modal = createInfoModal('Edit','Book saved successfully');
         modal.show();
     } catch (error) {
