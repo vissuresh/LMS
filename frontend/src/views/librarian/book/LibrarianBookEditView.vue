@@ -1,4 +1,5 @@
 <template>
+    <Loading :isLoading="isLoading" />
     <div class="container ">
         <div class="card">
             <div class="card-title mb-5 text-center">
@@ -82,10 +83,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import { createInfoModal } from '@/services/modal';
+import Loading from '@/components/Loading.vue';
 
+const isLoading = ref(false);
+const operationSuccess = ref(false);
 const newBook = ref({});
 const book = ref({});
 const editableFields = ref({
@@ -98,7 +102,8 @@ const editableFields = ref({
 });
 const sections = ref([]);
 const route = useRoute();
-const bookId = route.params.id;
+const router = useRouter();
+const bookId = route.params.bookId;
 
 
 const fetchBook = async () => {
@@ -137,6 +142,9 @@ const onFileChange = (e) => {
 
 
 const saveBook = async () => {
+    isLoading.value = true;
+    let modal = null;
+
     let formData = new FormData();
     if (newBook.value.book_file) {
         formData.append('file', newBook.value.book_file);
@@ -147,7 +155,6 @@ const saveBook = async () => {
             data[key] = newBook.value[key];
         }
     });
-
     formData.append('data', JSON.stringify(data));
 
     try{
@@ -156,14 +163,18 @@ const saveBook = async () => {
                 'Content-Type': 'multipart/form-data'
             }
         });
-        
-        const modal = createInfoModal('Edit','Book saved successfully');
-        modal.show();
+        operationSuccess.value = true;
+        modal = createInfoModal('Edit','Book saved successfully');
+
     } catch (error) {
-        console.error(error);
-        const modal = createInfoModal('Error',error.response.data.message);
-        modal.show();
+        if(error.response && error.response.data){
+            modal = createInfoModal('Error',error.response.data.message);
+        } else{
+            modal = createInfoModal('Error','An error occurred.');
+        }    
     }
+    isLoading.value = false;
+    modal.show();
 };
 
 const toggleEditable = (field) => {
@@ -188,7 +199,9 @@ onMounted(() => {
     var myModalEl = document.getElementById('infoModal');
     if (myModalEl) {
         myModalEl.addEventListener('hidden.bs.modal', function (event) {
-            window.location.reload();
+            if (operationSuccess.value == true){
+                window.location.reload();
+            }
         });
     }
 });

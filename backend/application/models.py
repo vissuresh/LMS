@@ -97,7 +97,7 @@ class Section(db.Model):
 
 
 class Book(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key = True, autoincrement=True)
     name = db.Column(db.String(64), nullable = False)
     author = db.Column(db.String(64), nullable = False)
     desc = db.Column(db.String(128))
@@ -106,7 +106,7 @@ class Book(db.Model):
 
     copies = db.Column(db.Integer, nullable = False)
     issued = db.Column(db.Integer, nullable = False, default = 0)
-    path = db.Column(db.String(128), nullable = False)
+    filename = db.Column(db.String(128))
 
     rating = db.Column(db.Float, default = 0.0, nullable=False)
 

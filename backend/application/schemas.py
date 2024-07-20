@@ -45,6 +45,7 @@ class BookSchema(ma.SQLAlchemyAutoSchema):
     id = ma.auto_field(dump_only = True)
     section = ma.Nested(SectionSchema(only=('id', 'name')), dump_only = True)
     section_id = ma.auto_field(load_only=True)
+    filename = ma.auto_field(load_only = True)
     picture = Base64FileField()
 
 
