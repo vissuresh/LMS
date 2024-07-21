@@ -84,7 +84,7 @@ class Section(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(64), nullable = False)
     date_created = db.Column(db.Date, default = datetime.today, nullable = False)
-    desc = db.Column(db.String(32))
+    desc = db.Column(db.String(64))
 
     def save(self):
         db.session.add(self)
@@ -101,6 +101,7 @@ class Book(db.Model):
     name = db.Column(db.String(64), nullable = False)
     author = db.Column(db.String(64), nullable = False)
     desc = db.Column(db.String(128))
+    date_created = db.Column(db.Date, default = datetime.today)
     section_id = db.Column(db.Integer, db.ForeignKey('section.id'))
     picture = db.Column(db.LargeBinary)
 

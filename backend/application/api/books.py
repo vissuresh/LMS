@@ -44,8 +44,7 @@ def get_all_books():
     if rating:
         book_query = book_query.filter(Book.rating >= rating)
 
-    
-    
+    book_query = book_query.order_by(Book.date_created.desc())
 
     try:
         books = book_query.paginate(

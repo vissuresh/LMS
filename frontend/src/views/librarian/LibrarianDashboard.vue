@@ -16,7 +16,7 @@
             <div class="card-body">
               <h5 class="card-title">Sections</h5>
               <p class="card-text">Add, Update or Delete Sections.</p>
-              <router-link to="/librarian/sections" class="btn btn-primary">Go to Sections</router-link>
+              <router-link :to="{ name: 'LibrarianSections' }" class="btn btn-primary">Go to Sections</router-link>
             </div>
           </div>
         </div>

@@ -5,6 +5,7 @@ from application.models import Section, Book
 from application.schemas import SectionSchema, BookSchema
 from application.validation import check_librarian
 from application import db
+import json
 
 section_bp = Blueprint(
     'sections',
@@ -54,7 +55,14 @@ def get_all_sections():
 @jwt_required()
 def get_section(section_id):
     section = Section.query.get_or_404(section_id)
-    section_data = SectionSchema().dump(section)
+    return (SectionSchema().dump(section), 200)
+
+
+@section_bp.get('/<int:section_id>/books')
+@jwt_required()
+def get_section_books(section_id):
+    section = Section.query.get_or_404(section_id)
+    section_data =  SectionSchema().dump(section)
 
     popular_books = section.books.order_by(db.func.avg(Book.feedback.any().rating).desc()).limit(10).all()
     popular_books_data = BookSchema().dump(popular_books, many=True)
@@ -76,7 +84,9 @@ def create_section():
 @check_librarian
 def update_section(section_id):
     section = Section.query.get_or_404(section_id)
-    SectionSchema().load(request.json, instance=section, session=db.session, partial=True)
+    data = json.loads(request.form.get('data'))
+    
+    SectionSchema().load(data, instance=section, session=db.session, partial=True)
     section.save()
     
     return jsonify({"message":"success"}), 200
