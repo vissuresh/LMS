@@ -15,3 +15,7 @@ class Config(object):
 
     JWT_COOKIE_SECURE = False
     JWT_COOKIE_SAMESITE = None
+
+    LIBRARIAN_EMAILS =[
+        "new@gmail.com",
+    ]

@@ -1,13 +1,11 @@
 <template>
   <div class="container ">
-    <div class="row justify-content-center ">
+    <div class="row justify-content-center">
       <div class="col-5 ">
 
         <div class="card">
-          <div class="card-header"><h4>Login</h4></div>
+          <div class="card-header text-center"><h4>Login</h4></div>
 
-          
-          <form @submit.prevent="login">
             <div class="card-body">  
               <div class="mb-3">
                 <label for="email" class="form-label">Email address</label>
@@ -18,11 +16,21 @@
                 <label for="password" class="form-label">Password</label>
                 <input type="password" class="form-control" v-model="password" id="password" required>
               </div>
-
-              <button type="submit" class="btn btn-primary">Submit</button>
             </div>
 
-          </form>
+            <div class="card-footer">
+              <div class="row">
+                
+                <div class="col">
+                  <button type="submit" class="btn btn-primary" @click="login">Submit</button>
+                </div>
+
+                <div class="col text-end">
+                  <span>New user?<router-link :to="{name:'RegisterView'}" class="btn btn-link">Register here!</router-link> </span>
+                </div>
+
+              </div>
+            </div>
 
         </div>
 

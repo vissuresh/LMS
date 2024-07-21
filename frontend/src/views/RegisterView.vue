@@ -6,7 +6,6 @@
         <div class="card">
           <div class="card-header"><h4>Register</h4></div>
 
-          
           <form @submit.prevent="validate">
             <div class="card-body">
 
@@ -68,8 +67,10 @@ const name = ref('');
 
 
 const validate = () => {
+  let modal = null;
   if(password.value != repassword.value){
-    alert("Passwords do not match. Try again.");
+    modal = createInfoModal("Error", "Passwords do not match. Try again.");
+    modal.show();
     return;
   }
   register();
@@ -86,7 +87,6 @@ const register = async () => {
     });
 
     modal = createInfoModal("Registration", "Registration successful. You can now login.");
-
     router.push('/auth/login');
 
   } catch (error) {

@@ -5,6 +5,7 @@ from application.models import Section, Book
 from application.schemas import SectionSchema, BookSchema
 from application.validation import check_librarian
 from application import db
+from sqlalchemy.exc import IntegrityError
 import json
 
 section_bp = Blueprint(
@@ -20,14 +21,27 @@ def get_all_sections():
     page = request.args.get('page', type=int)
     per_page = request.args.get('per_page', default=10, type=int)
 
+    search_by = request.args.get('search_by', 'section_name')
+    search_query = request.args.get('query')
+
+    section_query = Section.query
+
+    if search_query not in [None, '']:
+        if search_by == 'section_name':
+            section_query = section_query.filter(Section.name.ilike(f"%{search_query}%"))
+        elif search_by == 'section_id':
+            section_query = section_query.filter(Section.id == search_query)
+
+    section_query = section_query.order_by(Section.date_created.desc())
+
     if page is None:
-        sections = Section.query.all()
+        sections = section_query.all()
         result = SectionSchema().dump(sections, many=True)
         return jsonify({"sections": result}), 200
     
 
     try:
-        sections = Section.query.paginate(
+        sections = section_query.paginate(
             page = page,
             per_page = per_page
         )
@@ -75,8 +89,20 @@ def get_section_books(section_id):
 @section_bp.post('/')
 @check_librarian
 def create_section():
-    new_section = SectionSchema().load(request.json, session=db.session)
-    new_section.save()
+    data = json.loads(request.form.get('data'))
+    section_name = data.get('name').strip().lower()
+    section_desc = data.get('desc')
+    if not section_name or section_desc == '':
+        return jsonify({"message": "Incomplete form data"}), 400
+
+    data['name'] = section_name 
+    new_section = SectionSchema().load(data, session=db.session)
+    try:
+        new_section.save()
+    except IntegrityError as e:
+        db.session.rollback()
+        return jsonify({"message": "An error occurred"}), 400
+    
     return jsonify({"message": "success"}), 201
 
 
@@ -87,7 +113,12 @@ def update_section(section_id):
     data = json.loads(request.form.get('data'))
     
     SectionSchema().load(data, instance=section, session=db.session, partial=True)
-    section.save()
+
+    try:
+        section.save()
+    except IntegrityError as e:
+        db.session.rollback()
+        return jsonify({"message": "An error occurred"}), 400
     
     return jsonify({"message":"success"}), 200
 
@@ -97,6 +128,11 @@ def update_section(section_id):
 @check_librarian
 def delete_section(section_id):
     section = Section.query.get_or_404(section_id)
-    section.delete()
+
+    try:
+        section.delete()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "An error occurred"}), 400
 
     return jsonify({"message":"success"}), 200

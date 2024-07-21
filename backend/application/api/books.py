@@ -116,14 +116,20 @@ def create_book():
             file_extension = filename.split('.')[-1].lower()
             if file_extension not in ['pdf', 'epub']:
                 return jsonify({
-                    "error": "Invalid book file format. Only PDF and EPUB files are allowed"
+                    "message": "Invalid book file format. Only PDF and EPUB files are allowed"
                 }), 400 
             
             new_book.filename = f'{new_book.id}.{file_extension}'
 
     
     file.save(os.path.join(books_dir, new_book.filename))
-    new_book.save()
+    try:
+        new_book.save()
+    except:
+        db.session.rollback()
+        os.remove(os.path.join(books_dir, new_book.filename))
+
+        return jsonify({"message": "An error occurred"}), 400
     return jsonify({"message": "success"}), 201
 
 
@@ -139,7 +145,6 @@ def update_book(book_id):
     new_copies = data.get('copies')
     if (new_copies is not None) and (new_copies < book.issued):
         return jsonify({
-            "status" : "error",
             "message" : "\'copies\' is less than \'issued\'"
         }), 400
     
@@ -159,18 +164,22 @@ def update_book(book_id):
             file_extension = filename.split('.')[-1].lower()
             if file_extension not in ['pdf', 'epub']:
                 return jsonify({
-                    "error": "Invalid book file format. Only PDF and EPUB files are allowed"
+                    "message": "Invalid book file format. Only PDF and EPUB files are allowed"
                 }), 400 
             book.filename = f'{book.id}.{file_extension}'
 
 
     BookSchema().load(data, instance=book, session=db.session, partial=True)
-    book.save()
-
+    
+    try:
+        book.save()
+    except:
+        db.session.rollback()
+        return jsonify({"message": "An error occurred"}), 400
+    
     if file:
         file.save(os.path.join(books_dir, book.filename))
 
-    
     return jsonify({"message":"success"}), 200
 
 
@@ -179,7 +188,12 @@ def update_book(book_id):
 @check_librarian
 def delete_book(book_id):
     book = Book.query.get_or_404(book_id)
-    book.delete()
+
+    try:
+        book.delete()
+    except:
+        db.session.rollback()
+        return jsonify({"message": "An error occurred"}), 400
 
     return jsonify({"message":"success"}), 200
 

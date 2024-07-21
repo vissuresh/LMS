@@ -22,12 +22,28 @@
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Book Requests</h5>
-          <p class="card-text">Approve or reject book requests.</p>
-          <router-link to="/book-requests" class="btn btn-primary">Go to Book Requests</router-link>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card mb-4">
+            <div class="card-body">
+              <h5 class="card-title">Book Requests</h5>
+              <p class="card-text">Approve or reject book requests.</p>
+              <router-link to="/book-requests" class="btn btn-primary">Go to Book Requests</router-link>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card mb-4">
+            <div class="card-body">
+              <h5 class="card-title">Book Issues</h5>
+              <p class="card-text">Manage and revoke book issuances.</p>
+              <router-link to="/book-issues" class="btn btn-primary">Go to Book Issues</router-link>
+            </div>
+          </div>
         </div>
       </div>
+
+
     </div>
 </template>

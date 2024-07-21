@@ -82,9 +82,9 @@ class TokenBlocklist(db.Model):
 
 class Section(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String(64), nullable = False)
+    name = db.Column(db.String(64), nullable = False, unique = True)
     date_created = db.Column(db.Date, default = datetime.today, nullable = False)
-    desc = db.Column(db.String(64))
+    desc = db.Column(db.String(128))
 
     def save(self):
         db.session.add(self)

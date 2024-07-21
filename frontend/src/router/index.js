@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import BooksView from '@/views/BooksView.vue'
 import LoginView from '@/views/LoginView.vue'
-import RegisterView from '@/views/RegisterVue.vue'
+import RegisterView from '@/views/RegisterView.vue'
 import BookView from '@/views/BookView.vue'
 import Navbar from '@/components/Navbar.vue'
 import LibrarianNavbar from '@/components/LibrarianNavbar.vue'
@@ -11,6 +11,7 @@ import LibrarianBookAddView from '@/views/librarian/book/LibrarianBookAddView.vu
 import LibrarianBookEditView from '@/views/librarian/book/LibrarianBookEditView.vue'
 import LibrarianSectionsView from '@/views/librarian/section/LibrarianSectionsView.vue'
 import LibrarianSectionEditView from '@/views/librarian/section/LibrarianSectionEditView.vue'
+import LibrarianSectionAddView from '@/views/librarian/section/LibrarianSectionAddView.vue'
 import SectionView from '@/views/SectionView.vue'
 import store from '@/store'
 import axios from 'axios'
@@ -122,7 +123,15 @@ const librarianRoutes = [
           default: LibrarianSectionEditView,
           navbar: LibrarianNavbar
         },
-      }
+      },
+      {
+        path: "sections/add",
+        name: "LibrarianSectionAdd",
+        components: {
+          default: LibrarianSectionAddView,
+          navbar: LibrarianNavbar
+        },
+      },
     ],
   }
 ]
@@ -142,7 +151,7 @@ const authRoutes = [
       },
       {
         path: 'register',
-        name: 'register',
+        name: 'RegisterView',
         components: {
           default: RegisterView,
           navbar: Navbar
@@ -185,7 +194,7 @@ router.beforeEach( async (to, from, next) => {
   const userRole = store.getters.isLibrarian ? 'librarian' : 'user';
 
   if(!isAuthenticated){
-    if(to.name !== 'login' && to.name !== 'register'){
+    if(to.name !== 'login' && to.name !== 'RegisterView'){
       next('/auth/login');
     }
     else{
@@ -193,7 +202,7 @@ router.beforeEach( async (to, from, next) => {
     }
   }
 
-  else if(to.name === 'login' || to.name === 'register'){
+  else if(to.name === 'login' || to.name === 'RegisterView'){
     next('/');
   }
 

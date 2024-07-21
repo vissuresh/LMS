@@ -8,7 +8,7 @@
 
                 <div class="row mb-5">
                     <div class="col-5">
-                        <router-link to="/" class="btn btn-primary">Add Section</router-link>
+                        <router-link :to="{ name: 'LibrarianSectionAdd' }" class="btn btn-primary">Add Section</router-link>
                     </div>
 
                     <div class="col-6">

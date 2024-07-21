@@ -109,8 +109,16 @@ const bookId = route.params.bookId;
 const fetchBook = async () => {
     try{
         const response = await axios.get(`/books/${bookId}`);
-        book.value = {...response.data, book_file: null, section_id: response.data.section.id};     
-        newBook.value = {...response.data, book_file: null, section_id: response.data.section.id};
+        book.value = {...response.data, book_file: null};     
+        newBook.value = {...response.data, book_file: null};
+
+        if (response.data.section) {
+            book.value.section_id = response.data.section.id;
+            newBook.value.section_id = response.data.section.id;
+        } else {
+            book.value.section_id = null;
+            newBook.value.section_id = null;
+        }
         
     } catch (error) {
         console.error(error);
