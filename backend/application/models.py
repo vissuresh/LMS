@@ -138,6 +138,8 @@ class Feedback(db.Model):
     comment = db.Column(db.String(128), nullable = False)
     rating = db.Column(db.Integer, nullable = False)
 
+    date_created = db.Column(db.Date, default = datetime.today)
+
     user = db.relationship('User')
     
 
@@ -197,9 +199,9 @@ class BookRequest(db.Model):
             db.session.commit()
         except SQLAlchemyError:
             db.session.rollback()
-            return jsonify({"status": "error", "message" : "Transaction failed"}), 404
+            return jsonify({"message" : "An error occurred."}), 400
         
-        return jsonify({"status" : "success", "request_id" : self.id}), 201
+        return jsonify({"message" : "Request created for book.", "request_id" : self.id}), 201
 
     def delete(self):
         db.session.delete(self)
@@ -207,6 +209,6 @@ class BookRequest(db.Model):
             db.session.commit()
         except SQLAlchemyError:
             db.session.rollback()
-            return jsonify({"status": "error", "message" : "Transaction failed"}), 404
+            return jsonify({"status": "error", "message" : "Transaction failed"}), 400
         
         return jsonify({"status" : "success"}), 201

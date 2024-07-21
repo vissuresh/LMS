@@ -1,8 +1,8 @@
 <template>
   <div class="container">
     <h1 class="mb-5">Books</h1>
-    <div class="row g-4">
-      <div class="col-6" v-for="book in books" :key="book.id">
+    <div class="row g-3">
+      <div class="col-4" v-for="book in books" :key="book.id">
           <Book :book="book"/>
       </div>
     </div>

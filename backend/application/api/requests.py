@@ -88,10 +88,10 @@ def grant_book(request_id):
 @request_bp.post('/<int:book_id>')
 @jwt_required()
 def request_book(book_id):
+    print("=============== BOOKID =============== ", book_id)
     
-    if len(current_user.books) + len(   current_user.requests) == 5:
+    if len(current_user.books) + len(current_user.requests) == 5:
         return jsonify({
-            'status' : 'error',
             "message": "User has equalled the limit to borrow."
         }), 403
     
@@ -101,9 +101,8 @@ def request_book(book_id):
 
     existing_request = BookRequest.query.filter_by(user_id = user_id, book_id = book_id).first()
     if existing_request:
-        return jsonify({    
-            "status" : "error",
-            "message" : "Request for this book already exists"
+        return jsonify({
+            "message" : "User has already requested this book"
         }), 403
     
 

@@ -1,7 +1,11 @@
 <template>
     <div class="loader-overlay" v-if="isLoading">
-        <div class="loader"></div>
+      <div class="spinner-border text-secondary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
     </div>
+
+    
 </template>
 
 
@@ -25,18 +29,5 @@ const props = defineProps({
     justify-content: center;
     align-items: center;
     z-index: 1050;
-}
-
-.loader {
-    border: 7px solid #f3f3f3;
-    border-top: 7px solid #0bd998;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    animation: spin 2s linear infinite;
-}
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
 }
 </style>

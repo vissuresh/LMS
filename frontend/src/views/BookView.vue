@@ -1,84 +1,65 @@
+<!-- src/views/BookView.vue -->
 <template>
-    <div class="container">
-        <div class="row mb-5">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ book.name }}</h5>
-                        <p class="card-text">{{ book.desc }}</p>
-                        <button class="btn btn-primary" @click="handleRequestBook">Request Book</button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <img :src="book.picture" class="card-img-top" alt="Book Picture">
-                </div>
-            </div>
+    <div class="container mt-5">
+      <BookDetails :book="book" />
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>Comments</span>
+          <div>
+            <button class="btn btn-outline-primary btn-sm" @click="toggleSort">{{ sortByNewest ? 'Sort by Newest' : 'Sort by Rating' }}</button>
+          </div>
         </div>
-
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <div class="row mb-3">
-                    <div class="col-md-12">
-                        <h5 class="card-title">Comments</h5>
-                    </div>
-                </div>
-                <div v-for="comment in comments" :key="comment.id" class="row mb-3">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>{{ comment.user }}</div>
-                                    <div>{{ comment.comment }}</div>
-                                    <div class="badge bg-primary">{{ comment.rating }}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="card-body">
+          <CommentCard v-for="comment in comments" :key="comment.id" :comment="comment" />
         </div>
+      </div>
     </div>
-</template>
-
+  </template>
+  
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
 import { requestBook } from '@/services/requestBook.js';
+import BookDetails  from '@/components/BookDetails.vue';
+import CommentCard from '@/components/CommentCard.vue';
 
 const book = ref({});
 const comments = ref([]);
+const sortByNewest = ref(true);
 const route = useRoute();
-const id = ref(parseInt(route.params.id));
+const id = route.params.id;
 
-const  handleRequestBook = () => requestBook(id.value);
-
-
+const  handleRequestBook = () => requestBook(id);
 
 
 onMounted(async () => {
     try{
-        const response = await axios.get(`books/${id.value}`);
+        const response = await axios.get(`books/${id}`);
         book.value = response.data;
     } catch(error) {
         console.error(error);
     }
     
     try {       
-        const commentsResponse = await axios.get(`books/${id.value}/comments`);
+        const commentsResponse = await axios.get(`books/${id}/comments`);
         comments.value = commentsResponse.data;
     } catch (error) {
         console.error(error);
     }
 });
 
+
+const toggleSort = () => {
+    sortByNewest.value = !sortByNewest.value;
+
+    if (sortByNewest.value) {
+        comments.value.sort((a, b) => new Date(b.date_created) - new Date(a.date_created));
+    } else {
+        comments.value.sort((a, b) => b.rating - a.rating);
+    }
+};
+
+    
+
 </script>
-
-
-
-
-<style>
-
-</style>

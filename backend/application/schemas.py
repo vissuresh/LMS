@@ -49,7 +49,7 @@ class BookSchema(ma.SQLAlchemyAutoSchema):
     picture = Base64FileField()
 
 
-class FeedbackSchema(ma.SQLAlchemyAutoSchema):
+class   FeedbackSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Feedback
         load_instance = True
