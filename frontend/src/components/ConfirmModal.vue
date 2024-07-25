@@ -7,8 +7,8 @@
         </div>  
         <div class="modal-body">{{ message }}</div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="emit('deleteCancelled')" >Cancel</button>
-          <button type="button" class="btn btn-primary" @click="emit('deleteConfirmed')">Confirm</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="emit('cancelled')" >Cancel</button>
+          <button type="button" class="btn btn-primary" @click="emit('confirmed')">Confirm</button>
         </div>
       </div>
     </div>
@@ -25,7 +25,7 @@ const props = defineProps({
   showModal: Boolean,
 });
 
-const emit = defineEmits(["deleteConfirmed", "deleteCancelled"]);
+const emit = defineEmits(["confirmed", "cancelled"]);
 
 let modalInstance = null;
 

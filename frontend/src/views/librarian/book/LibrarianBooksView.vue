@@ -1,5 +1,5 @@
 <template>
-    <ConfirmModal :showModal="showModal" :title="`Delete Book`" :message="confirmModalMessage" @deleteConfirmed="onConfirmed" @deleteCancelled="onCancelled" />
+    <ConfirmModal :showModal="showModal" :title="`Delete Book`" :message="confirmModalMessage" @confirmed="onConfirmed" @cancelled="onCancelled" />
     <Loading :isLoading="isLoading" />
     <div class="container-fluid  custom-container">
         <div class="d-flex">

@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, current_user
 
-from application.models import Book, BookRequest, BookIssue
+from application.models import Book, BookRequest, BookIssue, User
 from application.schemas import IssueSchema, RequestSchema, BookSchema
 from application.validation import check_librarian
 from application import db
@@ -17,12 +17,52 @@ request_bp = Blueprint(
 @request_bp.get('/all')
 @check_librarian
 def get_all_requests():
-    requests = BookRequest.query.all()
-    data = RequestSchema().dump(requests, many=True)
+    page = request.args.get('page', default=1, type=int)
+    per_page = request.args.get('per_page', default=10, type=int)
 
-    return jsonify({
-        "status" : "success",
-        "data" : {"requests" : data}
+    search_query = request.args.get('query')
+    books = request.args.get('books', '').split(',') if request.args.get('books') else []
+    userEmail = request.args.get('userEmail', '')
+
+    request_query = BookRequest.query
+
+    if search_query not in [None, '']:
+        request_query = request_query.filter(BookRequest.id == search_query)
+
+    if books:
+        request_query = request_query.filter(BookRequest.book_id.in_(books))
+
+    if userEmail:
+        user = User.get_user_by_email(userEmail)
+        if user is None:
+            return jsonify({
+                "message": "User email not found!"
+            }), 404
+        request_query = request_query.filter(BookRequest.user_id == user.id)
+
+    request_query = request_query.order_by(BookRequest.requested_at.desc())
+
+    try:
+        bookRequests = request_query.paginate(
+            page = page,
+            per_page = per_page
+        )
+    except:
+        return jsonify({
+            "error": "page or per-page out of bounds"
+        }), 400
+
+    result = RequestSchema().dump(bookRequests, many=True)    
+
+    return jsonify({    
+        "requests" : result,
+
+        "pagination": {
+            "page": bookRequests.page,
+            "per_page": bookRequests.per_page,
+            "total": bookRequests.total,
+            "pages": bookRequests.pages
+        }
     }), 200
 
 
@@ -31,19 +71,7 @@ def get_all_requests():
 @request_bp.get('/user')
 @jwt_required()
 def get_user_requests():
-    user_requested_books = []
-    for request in current_user.requests:
-        book = Book.query.get(request.book_id)
-
-        user_requested_books.append({
-            "request_id" :request.id,
-            "book_id" :book.id,
-        })
-        
-    return jsonify({
-        "success" : True,
-        "requests" : user_requested_books
-    }), 200
+    return jsonify([ {"book_id" : request.book_id, "request_id": request.id} for request in current_user.requests ]), 200
 
 
 
@@ -88,12 +116,11 @@ def grant_book(request_id):
 @request_bp.post('/<int:book_id>')
 @jwt_required()
 def request_book(book_id):
-    print("=============== BOOKID =============== ", book_id)
     
     if len(current_user.books) + len(current_user.requests) == 5:
         return jsonify({
             "message": "User has equalled the limit to borrow."
-        }), 403
+        }), 409
     
     
     book = Book.query.get_or_404(book_id)
@@ -103,7 +130,7 @@ def request_book(book_id):
     if existing_request:
         return jsonify({
             "message" : "User has already requested this book"
-        }), 403
+        }), 409
     
 
     existing_issue = BookIssue.query.filter_by(user_id = current_user.id, book_id = book_id).first()
@@ -111,7 +138,7 @@ def request_book(book_id):
         return jsonify({
             "status" : "error",
             "message" : "Book already issued to user"
-        }), 403
+        }), 409
 
     
     book_request = RequestSchema().load({'user_id':user_id, 'book_id': book_id}, session=db.session)

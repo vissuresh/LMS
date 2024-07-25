@@ -12,6 +12,8 @@ import LibrarianBookEditView from '@/views/librarian/book/LibrarianBookEditView.
 import LibrarianSectionsView from '@/views/librarian/section/LibrarianSectionsView.vue'
 import LibrarianSectionEditView from '@/views/librarian/section/LibrarianSectionEditView.vue'
 import LibrarianSectionAddView from '@/views/librarian/section/LibrarianSectionAddView.vue'
+import LibrarianBookRequestsView from '@/views/librarian/request/LibrarianBookRequestsView.vue'
+import LibrarianBookIssuesView from '@/views/librarian/issue/LibrarianBookIssuesView.vue'
 import SectionView from '@/views/SectionView.vue'
 import store from '@/store'
 import axios from 'axios'
@@ -132,6 +134,22 @@ const librarianRoutes = [
           navbar: LibrarianNavbar
         },
       },
+      {
+        path: "book-requests",
+        name: "LibrarianBookRequests",
+        components: {
+          default: LibrarianBookRequestsView,
+          navbar: LibrarianNavbar
+        },
+      },
+      {
+        path: "book-issues",
+        name: "LibrarianBookIssues",
+        components: {
+          default: LibrarianBookIssuesView,
+          navbar: LibrarianNavbar
+        },
+      }
     ],
   }
 ]

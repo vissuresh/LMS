@@ -8,6 +8,10 @@ export default createStore({
     selectedSections: [],
     selectedAuthors: [],
     selectedRating: 0,
+    selectedBooks: [],
+    selectedUserEmail: '',
+
+    
   },
   mutations: {
     setAuthenticated(state, value) {
@@ -21,6 +25,8 @@ export default createStore({
     },
 
 
+
+
     updateSelectedSections(state, sections) {
       state.selectedSections = sections;
     },
@@ -29,6 +35,12 @@ export default createStore({
     },
     updateSelectedRating(state, rating) {
       state.selectedRating = rating;
+    },
+    updateSelectedBooks(state, books) {
+      state.selectedBooks = books;
+    },
+    updateSelectedUserEmail(state, email) {
+      state.selectedUserEmail = email;
     },
 
   },
@@ -47,6 +59,11 @@ export default createStore({
       commit('updateSelectedSections', sections);
       commit('updateSelectedAuthors', authors);
       commit('updateSelectedRating', rating);
+    },
+
+    setBookRequestFilters({ commit }, { userEmail, books }) {
+      commit('updateSelectedBooks', books);
+      commit('updateSelectedUserEmail', userEmail);
     },
 
   },
@@ -69,6 +86,14 @@ export default createStore({
 
     selectedRating(state) {
       return state.selectedRating;
+    },
+
+    selectedBooks(state) {
+      return state.selectedBooks;
+    },
+
+    selectedUserEmail(state) {
+      return state.selectedUserEmail;
     },
   }
 

@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, current_user
 from application.models import Book
-from application.schemas import BookSchema, FeedbackSchema
+from application.schemas import BookSchema,BookShortSchema, FeedbackSchema
 from application.validation import check_librarian
 from application import db
 from werkzeug.utils import secure_filename
@@ -12,6 +12,13 @@ book_bp = Blueprint(
     'books',
     __name__
 )
+
+@book_bp.get('/all/short')
+@jwt_required()
+def get_all_books_short():
+    books = Book.query.all()
+
+    return jsonify(BookShortSchema().dump(books, many=True)), 200
 
 
 @book_bp.get('/all')
@@ -82,10 +89,7 @@ def get_book(book_id):
 @book_bp.get('/user')
 @jwt_required()
 def get_user_books():
-    return jsonify({
-        "success" : True,
-        "books": BookSchema(exclude=('copies','issued','filename',)).dump(current_user.books, many=True)
-    }), 200
+    return jsonify([book.id for book in current_user.books]), 200
 
 
 

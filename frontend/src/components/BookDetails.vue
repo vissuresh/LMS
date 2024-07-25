@@ -18,7 +18,9 @@
               </div>
             </div>
             <h6 class="card-subtitle mb-2">Section: {{ book.section ? book.section.name : "Unspecified"  }}</h6>
-            <button class="btn btn-primary" @click="requestBook">Request Book</button>
+            <button v-if="bookRequestedByUser" class="btn btn-danger" @click="handleDeleteRequest">Delete Request</button>
+            <button v-else-if="bookIssuedToUser" class="btn btn-success" @click="handleReadBook">Read Book</button>
+            <button v-else class="btn btn-primary" @click="handleRequestBook">Request Book</button>
           </div>
         </div>
       </div>
@@ -26,15 +28,111 @@
   </template>
   
 <script setup>
-    import { defineProps } from 'vue';
-    import 'bootstrap-icons/font/bootstrap-icons.css';
+import { defineProps, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { createInfoModal } from '@/services/modal';
+import axios from 'axios';
+import { saveToStorage, loadFromStorage } from '@/services/storage';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
-    const props = defineProps({
-        book: {
-            type: Object,
-            required: true
-        }
-    });
+const route = useRoute();
+const bookId = route.params.id;
+
+const userBooks = ref([]);
+const userRequests = ref([]);
+
+const bookIssuedToUser = ref(null);
+const bookRequestedByUser = ref(null);
+
+const requestId = ref(null);
+const issueId = ref(null);
+
+const props = defineProps({
+    book: {
+        type: Object,
+        required: true
+    }
+});
+
+const handleRequestBook = async () => {
+  let modal = null;
+
+    try {
+        const response = await axios.post(`/requests/${bookId}`);
+        bookRequestedByUser.value = true;
+        modal = createInfoModal('Request', 'Request successful!');
+
+    } catch (error) {
+        if(error.response && error.response.data){
+          modal = createInfoModal('Request', error.response.data.message);
+        } else {
+          modal = createInfoModal('Request', 'An error occurred.');
+        } 
+    }
+    modal.show();
+};
+
+const handleDeleteRequest = async () => {
+  let modal = null;
+
+    try {
+        const response = await axios.delete(`/requests/${requestId.value}`);
+        bookRequestedByUser.value = false;
+        modal = createInfoModal('Request', 'Request deleted successfully!');
+
+    } catch (error) {
+        if(error.response && error.response.data){
+          modal = createInfoModal('Request', error.response.data.message);
+        } else {
+          modal = createInfoModal('Request', 'An error occurred.');
+        } 
+    }
+    modal.show();
+};
+
+onMounted(async () => {
+
+  try {
+    const response = await axios.get('books/user');
+    userBooks.value = response.data;
+    saveToStorage('userBooks', userBooks.value);
+  } catch (error) {
+    console.error(error);
+  }
+
+  try {
+    const response = await axios.get('requests/user');
+    userRequests.value = response.data;
+    saveToStorage('userRequests', userRequests.value);
+  } catch (error) {
+    console.error(error);
+  }
+
+
+
+  for(let id of userBooks.value) {
+    if(id.toString() === bookId) {
+      bookIssuedToUser.value = true;
+      break;
+    }
+  }
+  for(let entry of userRequests.value) {
+    let book_id = entry.book_id.toString();
+    if(book_id === bookId) {
+      bookRequestedByUser.value = true;
+      requestId.value = entry.request_id;
+      break;
+    }
+  }
+
+
+  var myModalEl = document.getElementById('infoModal');
+    if (myModalEl) {
+        myModalEl.addEventListener('hidden.bs.modal', function (event) {
+              window.location.reload();
+        });
+    }
+});
 </script>
 
 

@@ -8,18 +8,13 @@
         <ul class="list-group list-group-flush">
 
           <li class="list-group-item mb-5">
-            <h5 class="card-title">Sections</h5>
-            <Dropdown :options="sections" :title="'Sections'" @updateValue="handleSectionsEvent" />
+            <h5 class="card-title">User</h5>
+            <input type="text" v-model="userEmail" class="form-control" placeholder="User email">
           </li>
 
           <li class="list-group-item mb-5">
-            <h5 class="card-title">Authors</h5>
-            <Dropdown :options="authors" :title="'Authors'" @updateValue="handleAuthorsEvent" />
-          </li>
-
-          <li class="list-group-item ">
-            <h5 class="card-title">Rating</h5>
-            <Rating @updateValue="handleRatingEvent" />
+            <h5 class="card-title">Books</h5>
+            <Dropdown :options="books" :title="'Books'" @updateValue="handleBooksEvent" />
           </li>
 
         </ul>
@@ -36,37 +31,23 @@
 <script setup>
   import { ref, onMounted } from 'vue';
   import Dropdown from '@/components/Dropdown.vue';
-  import Rating from '@/components/Rating.vue';
   import axios from 'axios';
   import { useStore } from 'vuex';
-  import { createInfoModal } from '@/services/modal';
 
   const store = useStore();
 
-  const sections = ref([]);
-  const authors = ref([]);
+  const userEmail = ref('');
+  const books = ref([]);
+  const selectedBooks = ref([]);
 
-  const selectedSections = ref([]);
-  const selectedAuthors = ref([]);
-  const selectedRating = ref(0);
-
-  const handleSectionsEvent = (sections) => {
-    selectedSections.value = sections.value;
-  };
-
-  const handleAuthorsEvent = (authors) => {
-    selectedAuthors.value = authors.value;
-  };
-
-  const handleRatingEvent = (rating) => {
-    selectedRating.value = rating;
+  const handleBooksEvent = (books) => {
+    selectedBooks.value = books.value;
   };
 
   const applyFilters = () => {
-    store.dispatch('setFilters', {
-      sections: selectedSections.value,
-      authors: selectedAuthors.value,
-      rating: selectedRating.value
+    store.dispatch('setBookRequestFilters', {
+      userEmail: userEmail.value,
+      books: selectedBooks.value,
     });
 
     alert('Filters have been applied.');
@@ -75,19 +56,11 @@
 
   onMounted(async () => {
     try {
-      const response = await axios.get('sections/all');
-      sections.value = response.data.sections;
+      const response = await axios.get('books/all/short');
+      books.value = response.data;
     } catch (error) {
       console.error(error);
     }
-
-    try {
-      const response = await axios.get('books/authors/all');
-      authors.value = response.data.authors;
-    } catch (error) {
-      console.error(error);
-    }
-
   });
 
 </script>

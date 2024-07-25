@@ -15,6 +15,7 @@ class UserSchema(ma.SQLAlchemySchema):
 
 
 
+
 class SectionSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Section
@@ -35,7 +36,11 @@ class Base64FileField(fields.Field):
         if value is not None:
             return base64.b64decode(value)
         
-    
+
+class BookShortSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Book
+        fields = ('id', 'name')
 
 class BookSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -49,7 +54,7 @@ class BookSchema(ma.SQLAlchemyAutoSchema):
     picture = Base64FileField()
 
 
-class   FeedbackSchema(ma.SQLAlchemyAutoSchema):
+class FeedbackSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Feedback
         load_instance = True
@@ -73,6 +78,16 @@ class IssueSchema(ma.SQLAlchemyAutoSchema):
     id = ma.auto_field(dump_only = True)
     issued_at = ma.auto_field(dump_only = True)
     expiry = ma.auto_field(dump_only = True)
+    user = ma.Method('get_username', dump_only = True)
+    book = ma.Method('get_book', dump_only = True)
+
+    def get_username(self, obj):
+        user = User.query.get(obj.user_id)
+        return UserSchema(exclude=('id',)).dump(user)
+
+    def get_book(self, obj):
+        book = Book.query.get(obj.book_id)
+        return BookSchema(exclude=('filename', 'picture')).dump(book)
 
 
 
@@ -86,4 +101,7 @@ class RequestSchema(ma.SQLAlchemyAutoSchema):
         include_relationships = True
         load_instance = True
 
-    id = ma.auto_field(dump_only = True)
+    id = ma.auto_field(dump_only=True)
+    user = fields.Nested(UserSchema(exclude=('id',)), dump_only=True)
+    book = ma.Nested(BookSchema(exclude=('filename','picture')))
+    user_id = ma.auto_field(load_only=True)

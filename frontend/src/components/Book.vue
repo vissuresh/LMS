@@ -33,7 +33,6 @@
 </template>
 
 <script setup>
-// import { requestBook } from '@/services/requestBook.js';
 import { defineProps, onMounted } from 'vue';
 import { createInfoModal } from '@/services/modal';
 import axios from 'axios';

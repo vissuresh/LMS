@@ -1,7 +1,10 @@
 <!-- src/views/BookView.vue -->
 <template>
     <div class="container mt-5">
-      <BookDetails :book="book" />
+      <BookDetails :book="book"/>
+      
+      <hr class="my-4" />
+
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
           <span>Comments</span>
@@ -18,35 +21,33 @@
   
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
 import axios from 'axios';
-import { requestBook } from '@/services/requestBook.js';
 import BookDetails  from '@/components/BookDetails.vue';
 import CommentCard from '@/components/CommentCard.vue';
+import { useRoute } from 'vue-router';
 
 const book = ref({});
 const comments = ref([]);
 const sortByNewest = ref(true);
-const route = useRoute();
-const id = route.params.id;
 
-const  handleRequestBook = () => requestBook(id);
+const route = useRoute();
+const bookId = route.params.id;
 
 
 onMounted(async () => {
-    try{
-        const response = await axios.get(`books/${id}`);
-        book.value = response.data;
-    } catch(error) {
-        console.error(error);
-    }
-    
-    try {       
-        const commentsResponse = await axios.get(`books/${id}/comments`);
-        comments.value = commentsResponse.data;
-    } catch (error) {
-        console.error(error);
-    }
+  try{
+      const response = await axios.get(`books/${bookId}`);
+      book.value = response.data;
+  } catch(error) {
+      console.error(error);
+  }
+  
+  try {       
+      const commentsResponse = await axios.get(`books/${bookId}/comments`);
+      comments.value = commentsResponse.data;
+  } catch (error) {
+      console.error(error);
+  }
 });
 
 

@@ -193,6 +193,8 @@ class BookRequest(db.Model):
 
     requested_at = db.Column(db.DateTime(), nullable = False, default = datetime.utcnow)
 
+    book = db.relationship('Book', backref='requests')
+
     def save(self):
         db.session.add(self)
         try:
@@ -209,6 +211,6 @@ class BookRequest(db.Model):
             db.session.commit()
         except SQLAlchemyError:
             db.session.rollback()
-            return jsonify({"status": "error", "message" : "Transaction failed"}), 400
+            return jsonify({"message" : "Transaction failed"}), 400
         
-        return jsonify({"status" : "success"}), 201
+        return jsonify({"message" : "success"}), 201

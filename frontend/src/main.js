@@ -46,8 +46,10 @@ axios.interceptors.response.use(undefined, async function (error) {
 
 
   else if(error.response.status === 403){
-    router.push('/');
     store.dispatch('librarian', false);
+    store.dispatch('authenticated', false);
+
+    router.push('/');
   }
   
   return Promise.reject(error);
