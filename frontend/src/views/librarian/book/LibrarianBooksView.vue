@@ -3,7 +3,7 @@
     <Loading :isLoading="isLoading" />
     <div class="container-fluid  custom-container">
         <div class="d-flex">
-            <FilterSidebar class="mr-5"/>
+            <FilterSidebar @apply-filters="handleApplyFilters" class="mr-5"/>
 
             <div class="content-wrapper flex-grow-1">
 
@@ -49,10 +49,11 @@
                     </thead>
                     <tbody class="table-group-divider">
                         <tr v-for="book in books" :key="book.id">
-                            <td>{{ book.id }}</td>
+                            <td>{{ book.id }}</td>  
                             <td>{{ book.name }}</td>
                             <td>{{ book.author }}</td>
-                            <td>{{ book.section ? book.section.name : 'NULL' }}</td>
+                            <td v-if="book.section"><router-link :to="{name: 'LibrarianBooks', query: {section_id: book.section.id}}">{{ book.section.name }}</router-link></td>
+                            <td v-else>NULL</td>
                             <td>{{ book.copies }}</td>
                             <td>{{ book.issued }}</td>
                             <td class="border-start"><router-link :to="{ name: 'LibrarianBookEdit', params: {bookId : book.id} }" class="btn btn-warning">EDIT</router-link></td>
@@ -74,7 +75,7 @@
 
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import axios from 'axios';
 import Pagination from '@/components/Pagination.vue';
@@ -82,8 +83,10 @@ import FilterSidebar from '@/components/FilterSidebar.vue';
 import { createInfoModal } from '@/services/modal';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import Loading from '@/components/Loading.vue';
+import { useRoute } from 'vue-router';
 
 const store = useStore();
+const route = useRoute();
 const showModal = ref(false);
 const currentBookIdToDelete = ref(null);
 const confirmModalMessage = ref('Are you sure you want to delete this book? ');
@@ -94,9 +97,9 @@ const totalPages = ref(0);
 const currentPage = ref(1);
 
 const searchQuery = ref('');
-const selectedSections = computed(() => store.getters.selectedSections);
-const selectedAuthors = computed(() => store.getters.selectedAuthors);
-const selectedRating = computed(() => store.getters.selectedRating);
+const selectedSectionIds = ref([]);
+const selectedAuthors = ref([]);
+const selectedRating = ref(0);
 
 const dropdownOpen = ref(false);
 const search_by = ref('book_name');
@@ -106,6 +109,14 @@ const selectOption = (option) => {
     dropdownOpen.value = false;
 };
 
+const handleApplyFilters = (filters) => {
+  selectedSectionIds.value = filters.sectitotal_on_ids;
+  selectedAuthors.value = filters.authors;
+  selectedRating.value = filters.rating;
+
+  console.log('Applied Filters:', filters);
+};
+
 const fetchBooks = async (page) => {
     isLoading.value = true;
     let modal = null;
@@ -113,7 +124,7 @@ const fetchBooks = async (page) => {
         const queryParams = new URLSearchParams({
                 query: searchQuery.value,
                 search_by: search_by.value,
-                sections: selectedSections.value.map(section => section.id),
+                sections: selectedSectionIds.value,
                 authors: selectedAuthors.value.map(author => author.name),
                 rating: selectedRating.value
             }).toString();
@@ -177,6 +188,10 @@ const onCancelled = () => {
 
 
 onMounted(async () => {
+    if(route.query && route.query.section_id){
+    selectedSectionIds.value = [route.query.section_id];
+  }
+
    await fetchBooks(currentPage.value);
 
    var confirmModal = document.getElementById('confirmModal');
@@ -194,6 +209,24 @@ onMounted(async () => {
     }
 
 });
+
+
+
+watch(
+  () => route.query,
+  (newQuery) => {
+    if (newQuery.section_id) {
+      selectedSectionIds.value = [newQuery.section_id];
+      fetchBooks(1);
+    } else {
+      selectedSectionIds.value = [];
+      fetchBooks(1);
+    }
+  },
+  { immediate: true }
+);
+
+
 </script>
 
 <style scoped>

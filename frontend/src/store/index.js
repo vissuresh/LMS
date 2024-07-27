@@ -5,7 +5,7 @@ export default createStore({
     authenticated: JSON.parse(localStorage.getItem('authenticated')) || false,
     librarian: JSON.parse(localStorage.getItem('librarian')) || false,
 
-    selectedSections: [],
+    selectedSectionIds: [],
     selectedAuthors: [],
     selectedRating: 0,
     selectedBooks: [],
@@ -27,8 +27,8 @@ export default createStore({
 
 
 
-    updateSelectedSections(state, sections) {
-      state.selectedSections = sections;
+    updateSelectedSectionIds(state, section_ids) {
+      state.selectedSectionIds = section_ids;
     },
     updateSelectedAuthors(state, authors) {
       state.selectedAuthors = authors;
@@ -55,8 +55,8 @@ export default createStore({
     },
 
     
-    setFilters({ commit }, { sections, authors, rating }) {
-      commit('updateSelectedSections', sections);
+    setFilters({ commit }, { section_ids, authors, rating }) {
+      commit('updateSelectedSectionIds', section_ids);
       commit('updateSelectedAuthors', authors);
       commit('updateSelectedRating', rating);
     },
@@ -76,8 +76,8 @@ export default createStore({
       return state.librarian;
     },
 
-    selectedSections(state) {
-      return state.selectedSections;
+    selectedSectionIds(state) {
+      return state.selectedSectionIds;
     },
 
     selectedAuthors(state) {

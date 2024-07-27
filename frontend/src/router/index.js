@@ -14,7 +14,7 @@ import LibrarianSectionEditView from '@/views/librarian/section/LibrarianSection
 import LibrarianSectionAddView from '@/views/librarian/section/LibrarianSectionAddView.vue'
 import LibrarianBookRequestsView from '@/views/librarian/request/LibrarianBookRequestsView.vue'
 import LibrarianBookIssuesView from '@/views/librarian/issue/LibrarianBookIssuesView.vue'
-import SectionView from '@/views/SectionView.vue'
+import SectionsView from '@/views/SectionsView.vue'
 import store from '@/store'
 import axios from 'axios'
 
@@ -36,7 +36,7 @@ const defaultRoute ={
 const bookRoutes = [
   {
     path: '/books',
-    name: 'books',
+    name: 'BooksView',
     meta: { roles: ['user']},  
 
     components: {
@@ -60,14 +60,18 @@ const bookRoutes = [
 const sectionRoutes = [
 
   {
-    path: '/sections/:id',
-    name: 'sections',
-    meta: { roles: ['user', 'librarian']},
-    components: {
-      default: SectionView,
-      navbar: Navbar
-    },
-    props: true,
+    path: '/sections',
+    meta: { roles: ['user']},
+    children: [
+      {
+        path: '',
+        name: 'SectionsView',
+        components: {
+          default: SectionsView,
+          navbar: Navbar
+        },
+      },
+    ]
   },
 ]
 

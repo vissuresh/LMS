@@ -35,8 +35,7 @@ def get_all_sections():
     section_query = section_query.order_by(Section.date_created.desc())
 
     if page is None:
-        sections = section_query.all()
-        result = SectionSchema().dump(sections, many=True)
+        result = SectionSchema().dump(section_query.all(), many=True)
         return jsonify({"sections": result}), 200
     
 

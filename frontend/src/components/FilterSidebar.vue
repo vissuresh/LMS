@@ -39,9 +39,14 @@
   import Rating from '@/components/Rating.vue';
   import axios from 'axios';
   import { useStore } from 'vuex';
+  import { useRouter, useRoute } from 'vue-router';
   import { createInfoModal } from '@/services/modal';
+  import { defineEmits } from 'vue';
 
   const store = useStore();
+  const router = useRouter();
+  const route = useRoute();
+  const emit = defineEmits(['apply-filters']);
 
   const sections = ref([]);
   const authors = ref([]);
@@ -63,13 +68,13 @@
   };
 
   const applyFilters = () => {
-    store.dispatch('setFilters', {
-      sections: selectedSections.value,
+    emit('apply-filters', {
+      section_ids: selectedSections.value.map(section => section.id),
       authors: selectedAuthors.value,
       rating: selectedRating.value
     });
 
-    alert('Filters have been applied.');
+    alert('Filters have been applied. Search again to refine results');
   };
 
 

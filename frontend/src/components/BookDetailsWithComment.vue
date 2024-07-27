@@ -1,10 +1,10 @@
+<!-- src/components/BookDetails.vue -->
 <template>
-    <CommentModal :showModal="showModal" @submitComment="submitComment" @cancelComment="cancelComment" />
     <div class="card mb-4">
       <div class="row g-0">
         <div class="col-md-4">
           <img v-if="book.picture" :src="'data:image/jpeg;base64,' + book.picture" class="card-img-top img-fluid book-image rounded-start" alt="Book picture">
-          <img v-else src="/img/noPicture.jpg" class="card-img-top img-fluid book-image rounded-start" alt="No picture">
+          <img v-else src="/img/noPicture.jpg" class="card-img-top img-fluid rounded-start" alt="No picture">
         </div>
         <div class="col-md-8">
           <div class="card-body">
@@ -17,23 +17,9 @@
                 <i v-for="n in 5" :key="n" :class="n <= book.rating ? 'bi bi-star-fill' : n <= Math.ceil(book.rating) ? 'bi bi-star-half' : 'bi bi-star'"></i>
               </div>
             </div>
-            <h6 v-if="book.section" class="card-subtitle mb-2">Section: <router-link :to="{name: 'BooksView', query: {section_id: book.section.id}}">
-              {{ book.section.name }}
-            </router-link></h6>
-            <h6 v-else>Unspecified</h6>
+            <h6 class="card-subtitle mb-2">Section: {{ book.section ? book.section.name : "Unspecified"  }}</h6>
             <button v-if="bookRequestedByUser" class="btn btn-danger" @click="handleDeleteRequest">Delete Request</button>
-            <div v-else-if="bookIssuedToUser" class="row justify-content-end">
-              <div class="col-auto">
-                <button class="btn btn-primary" @click="handleReadBook">Read Book</button>
-              </div>
-              <div class="col-auto">
-                <button class="btn btn-success" @click="handleAddComment">Add Feedback</button>
-              </div>
-              <div class="col-auto">
-                <button class="btn btn-danger" @click="handleReturnBook">Return Book</button>
-              </div>
-            </div>
-            
+            <button v-else-if="bookIssuedToUser" class="btn btn-success" @click="handleReadBook">Read Book</button>
             <button v-else class="btn btn-primary" @click="handleRequestBook">Request Book</button>
           </div>
         </div>
@@ -45,8 +31,8 @@
 import { defineProps, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { createInfoModal } from '@/services/modal';
-import CommentModal from '@/components/CommentModal.vue';
 import axios from 'axios';
+import { saveToStorage, loadFromStorage } from '@/services/storage';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 const route = useRoute();
@@ -61,72 +47,12 @@ const bookRequestedByUser = ref(null);
 const requestId = ref(null);
 const issueId = ref(null);
 
-
 const props = defineProps({
     book: {
         type: Object,
         required: true
     }
 });
-
-
-const showModal = ref(false);
-
-const handleAddComment = () => {
-  showModal.value = true;
-};
-
-const submitComment = async (data) => {
-  showModal.value = false;
-  let modal = null;
-
-  let comment = data.comment;
-  let rating = data.rating;
-
-  if (!comment || comment.trim() === '' || !rating || rating < 1 || rating > 5) {
-    cancelComment();
-    return;
-  }
-  
-
-  try {
-    const response = await axios.post(`/books/${bookId}/comments`, data);
-    modal = createInfoModal('Comment', 'Comment added successfully!');
-  } catch (error) {
-    if(error.response && error.response.data){
-      modal = createInfoModal('Comment', error.response.data.message);
-    } else {
-      modal = createInfoModal('Comment', 'An error occurred.');
-    } 
-  }
-  modal.show();
-};
-
-const cancelComment = () => {
-  showModal.value = false;
-}
-
-const handleReturnBook = async () => {
-  let modal = null;
-
-  if(bookIssuedToUser.value === true) {
-    try {
-        const response = await axios.delete(`/issues/return/${bookId}`);
-        bookIssuedToUser.value = false;
-        modal = createInfoModal('Return', 'Book returned successfully!');
-
-    } catch (error) {
-        if(error.response && error.response.data){
-          modal = createInfoModal('Book Return', error.response.data.message);
-        } else {
-          modal = createInfoModal('Book Return', 'An error occurred.');
-        } 
-    }
-    modal.show();
-  }
-
-    
-};
 
 const handleRequestBook = async () => {
   let modal = null;
@@ -169,6 +95,7 @@ onMounted(async () => {
   try {
     const response = await axios.get('books/user');
     userBooks.value = response.data;
+    saveToStorage('userBooks', userBooks.value);
   } catch (error) {
     console.error(error);
   }
@@ -176,6 +103,7 @@ onMounted(async () => {
   try {
     const response = await axios.get('requests/user');
     userRequests.value = response.data;
+    saveToStorage('userRequests', userRequests.value);
   } catch (error) {
     console.error(error);
   }

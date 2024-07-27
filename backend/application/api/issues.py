@@ -1,12 +1,11 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, current_user
-
 from application.models import Book, BookIssue, User
 from application.schemas import IssueSchema
 from application.validation import check_librarian
 from application import db
-
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import and_
 
 issue_bp = Blueprint(
     'issues',
@@ -92,20 +91,16 @@ def revoke_book(issue_id):
 
 
 
-@issue_bp.delete('/return/<int:issue_id>')
+@issue_bp.delete('/return/<int:book_id>')
 @jwt_required()
-def return_book(issue_id):
-    issue = BookIssue.query.get_or_404(issue_id)
-    
-    if current_user.id != issue.user_id:
-        return jsonify({
-            "status" : "error",
-            "message" : "Unauthorized action"
-        }), 403
-    
-    book = Book.query.get(issue.book_id)
+def return_book(book_id):
+    issue = BookIssue.query.filter(and_(BookIssue.book_id == book_id, BookIssue.user_id == current_user.id)).first()
 
+    if issue is None:
+        return jsonify({"message" : "No such issue found"}), 404
     
+    book = Book.query.get(book_id)
+
     book.issued -=1
     db.session.delete(issue)
 
@@ -114,11 +109,10 @@ def return_book(issue_id):
     except SQLAlchemyError:
         db.session.rollback()
         return jsonify({
-            "status" : "error",
             "message" : "Transaction failed"
         }), 404
 
     
     return jsonify({
-        "status" : "success"
+        "message" : "success"
     }), 200

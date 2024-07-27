@@ -1,5 +1,4 @@
-<template>
-    <CommentModal :showModal="showModal" @submitComment="submitComment" @cancelComment="cancelComment" />
+2<template>
     <div class="card mb-4">
       <div class="row g-0">
         <div class="col-md-4">
@@ -10,31 +9,18 @@
           <div class="card-body">
             <h5 class="card-title">{{ book.name }}</h5>
             <h6 class="card-subtitle mb-2 text-muted">{{ book.author }}</h6>
-            <p class="card-text">{{ book.desc }}</p>
-            <div class="d-flex align-items-center mb-3">
-              <span class="badge bg-success me-2">{{ book.rating }}</span>
-              <div class="text-warning">
-                <i v-for="n in 5" :key="n" :class="n <= book.rating ? 'bi bi-star-fill' : n <= Math.ceil(book.rating) ? 'bi bi-star-half' : 'bi bi-star'"></i>
-              </div>
-            </div>
             <h6 v-if="book.section" class="card-subtitle mb-2">Section: <router-link :to="{name: 'BooksView', query: {section_id: book.section.id}}">
               {{ book.section.name }}
             </router-link></h6>
             <h6 v-else>Unspecified</h6>
             <button v-if="bookRequestedByUser" class="btn btn-danger" @click="handleDeleteRequest">Delete Request</button>
-            <div v-else-if="bookIssuedToUser" class="row justify-content-end">
+            <div class="row justify-content-end">
               <div class="col-auto">
-                <button class="btn btn-primary" @click="handleReadBook">Read Book</button>
-              </div>
-              <div class="col-auto">
-                <button class="btn btn-success" @click="handleAddComment">Add Feedback</button>
-              </div>
-              <div class="col-auto">
-                <button class="btn btn-danger" @click="handleReturnBook">Return Book</button>
+                <button v-if="issued" class="btn btn-primary" @click="handleReadBook">Read Book</button>
+                <button v-else class=""></button>
               </div>
             </div>
-            
-            <button v-else class="btn btn-primary" @click="handleRequestBook">Request Book</button>
+
           </div>
         </div>
       </div>
@@ -45,9 +31,10 @@
 import { defineProps, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { createInfoModal } from '@/services/modal';
-import CommentModal from '@/components/CommentModal.vue';
 import axios from 'axios';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+
+
 
 const route = useRoute();
 const bookId = route.params.id;
@@ -66,7 +53,8 @@ const props = defineProps({
     book: {
         type: Object,
         required: true
-    }
+    },
+    issued: Boolean,
 });
 
 

@@ -1,10 +1,11 @@
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, current_user
-from application.models import Book
+from application.models import Book, BookIssue, Feedback
 from application.schemas import BookSchema,BookShortSchema, FeedbackSchema
 from application.validation import check_librarian
 from application import db
 from werkzeug.utils import secure_filename
+from sqlalchemy import and_
 import os
 import json
 
@@ -25,7 +26,7 @@ def get_all_books_short():
 @jwt_required()
 def get_all_books():
     
-    page = request.args.get('page', default=1, type=int)
+    page = request.args.get('page', type=int)
     per_page = request.args.get('per_page', default=10, type=int)
 
     search_by = request.args.get('search_by', 'book_name')
@@ -52,29 +53,36 @@ def get_all_books():
         book_query = book_query.filter(Book.rating >= rating)
 
     book_query = book_query.order_by(Book.date_created.desc())
+    
+    if page is not None:
+        try:
+            books = book_query.paginate(
+                page = page,
+                per_page = per_page
+            )
+        except:
+            return jsonify({
+                "error": "page or per-page out of bounds"
+            }), 400
 
-    try:
-        books = book_query.paginate(
-            page = page,
-            per_page = per_page
-        )
-    except:
+        result = BookSchema().dump(books, many=True)    
+
+        return jsonify({    
+            "books" : result,
+
+            "pagination": {
+                "page": books.page,
+                "per_page": books.per_page,
+                "total": books.total,
+                "pages": books.pages
+            }
+        }), 200
+    
+    else:
+        result = BookSchema().dump(book_query.all(), many=True)
         return jsonify({
-            "error": "page or per-page out of bounds"
-        }), 400
-
-    result = BookSchema().dump(books, many=True)    
-
-    return jsonify({    
-        "books" : result,
-
-        "pagination": {
-            "page": books.page,
-            "per_page": books.per_page,
-            "total": books.total,
-            "pages": books.pages
-        }
-    }), 200
+            "books": result
+        }), 200
 
 
 @book_bp.get('/<int:book_id>')
@@ -232,8 +240,31 @@ def get_book_feedback(book_id):
 @book_bp.post('/<int:book_id>/comments')
 @jwt_required()
 def submit_feedback(book_id):
+    data = request.get_json()
+
+    comment = data.get('comment', None)
+    rating = data.get('rating', None)
+
+    if(comment in [None, '']) or (rating is None) or (rating < 1) or (rating > 5):
+        return jsonify({
+            "message" : "Invalid data"
+        }), 400
+    
     book = Book.query.get_or_404(book_id)
-    feedback = FeedbackSchema().load(request.json, session=db.session)
+    issue = BookIssue.query.filter(and_(BookIssue.book_id == book_id, BookIssue.user_id == current_user.id)).first()
+
+    if issue is None:
+        return jsonify({"message" : "Book not issued to user."}), 404
+    
+    existing_feedback = Feedback.query.filter(and_(Feedback.book_id == book_id, Feedback.user_id == current_user.id)).first()
+
+    if existing_feedback:
+        return jsonify({
+            "message" : "You have already submitted your feedback for this book"
+        }), 400
+    
+    
+    feedback = FeedbackSchema().load(data, session=db.session)
     feedback.book = book
     feedback.user = current_user
     feedback.save()

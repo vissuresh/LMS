@@ -10,7 +10,11 @@
 
 
         <div>
-          <span v-if="book.section" class="truncate">Section: <router-link :to="`/sections/${book.section.id}`">{{ book.section.name }}</router-link></span>
+          <span v-if="book.section" class="truncate">Section: 
+            <router-link :to="{name: 'BooksView', query: {section_id: book.section.id}}">
+              {{ book.section.name }}
+            </router-link>
+          </span>
           <span v-else class="truncate">Section: Unspecified</span>
         </div>
 
@@ -33,9 +37,13 @@
 </template>
 
 <script setup>
-import { defineProps, onMounted } from 'vue';
+import { defineProps, onMounted, watch } from 'vue';
 import { createInfoModal } from '@/services/modal';
 import axios from 'axios';
+import { useRoute, useRouter } from 'vue-router';
+
+const route = useRoute();
+const router = useRouter();
 
 
 const props = defineProps({
@@ -90,7 +98,7 @@ onMounted(() => {
 }
 
 .btn{
-  width: 60%;
+  width: 7  0%;
 }
 
 

@@ -136,7 +136,7 @@ class Feedback(db.Model):
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'))
 
     comment = db.Column(db.String(128), nullable = False)
-    rating = db.Column(db.Integer, nullable = False)
+    rating = db.Column(db.Float, nullable = False)
 
     date_created = db.Column(db.Date, default = datetime.today)
 

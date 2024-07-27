@@ -8,6 +8,9 @@
       <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
         <ul class="navbar-nav navbar-right">
           <li class="nav-item">
+            <router-link :to="{name: 'SectionsView'}">Sections</router-link>
+          </li>
+          <li class="nav-item">
             <router-link to="/">Home</router-link>
           </li>
           <li class="nav-item">
