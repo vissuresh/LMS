@@ -1,12 +1,16 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_file, url_for, current_app
 from flask_jwt_extended import jwt_required, current_user
 from application.models import Book, BookIssue, User
 from application.schemas import IssueSchema
 from application.validation import check_librarian
-from application import db
+from application import db, app, serializer
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import and_
-from datetime import datetime
+from datetime import datetime, timedelta
+from itsdangerous import URLSafeTimedSerializer
+import os
+
+
 
 issue_bp = Blueprint(
     'issues',
@@ -118,3 +122,22 @@ def return_book(book_id):
     return jsonify({
         "message" : "success"
     }), 200
+
+
+@issue_bp.get('/read-book/<int:book_id>')
+@jwt_required()
+def read_book(book_id):
+    issue = BookIssue.query.filter(and_(BookIssue.book_id == book_id, BookIssue.user_id == current_user.id)).first()
+    if issue is None:
+        return jsonify({"message" : "No such issue found"}), 404
+    if issue.expiry < datetime.now():
+        return jsonify({"message" : "Issue expired"}), 400
+
+    book = Book.query.get_or_404(issue.book_id)
+    books_dir = current_app.config['BOOKS_DIR']
+
+    pdf_path = os.path.join(books_dir, book.filename)
+    response = send_file(pdf_path, mimetype='application/pdf')
+    response.headers['Content-Disposition'] = response.headers['Content-Disposition'] = 'inline; filename="{}"'.format(book.name.lower().replace(' ', '_'))
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    return response, 200

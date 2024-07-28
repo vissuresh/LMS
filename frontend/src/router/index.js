@@ -16,6 +16,7 @@ import LibrarianBookRequestsView from '@/views/librarian/request/LibrarianBookRe
 import LibrarianBookIssuesView from '@/views/librarian/issue/LibrarianBookIssuesView.vue'
 import SectionsView from '@/views/SectionsView.vue'
 import ProfileView from '@/views/ProfileView.vue'
+import ReadBookView from '@/views/ReadBookView.vue'
 import store from '@/store'
 import axios from 'axios'
 
@@ -59,13 +60,28 @@ const bookRoutes = [
 
 const profileRoutes = [
   {
-    path: '/profile',
-    name: 'ProfileView',
+    path: '/user',
+    
     meta: { roles: ['user'] },
-    components: {
-      default: ProfileView,
-      navbar: Navbar
-    },
+    children: [
+      {
+        path: '/profile',
+        name: 'ProfileView',
+        components: {
+          default: ProfileView,
+          navbar: Navbar
+        },
+      },
+      {
+        path: '/read-book/:bookId',
+        name: 'ReadBookView',
+        components: {
+          default: ReadBookView,
+          navbar: Navbar
+        },
+      }
+    ]
+    
   },
 ];
 

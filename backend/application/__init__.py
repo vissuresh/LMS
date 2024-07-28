@@ -1,5 +1,5 @@
 from flask import Flask, jsonify
-
+from itsdangerous import URLSafeTimedSerializer
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
@@ -27,6 +27,8 @@ CORS(app, supports_credentials=True)
 books_dir = app.config['BOOKS_DIR']
 if not os.path.exists(books_dir):
     os.makedirs(books_dir)
+
+serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
 
 

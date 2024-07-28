@@ -130,9 +130,9 @@ def create_book():
 
         if file.filename != '':
             file_extension = filename.split('.')[-1].lower()
-            if file_extension not in ['pdf', 'epub']:
+            if file_extension != 'pdf':
                 return jsonify({
-                    "message": "Invalid book file format. Only PDF and EPUB files are allowed"
+                    "message": "Invalid book file format. Only PDF files are allowed"
                 }), 400 
             
             new_book.filename = f'{new_book.id}.{file_extension}'
@@ -178,9 +178,9 @@ def update_book(book_id):
 
         if file.filename != '':
             file_extension = filename.split('.')[-1].lower()
-            if file_extension not in ['pdf', 'epub']:
+            if file_extension != 'pdf':
                 return jsonify({
-                    "message": "Invalid book file format. Only PDF and EPUB files are allowed"
+                    "message": "Invalid book file format. Only PDF files are allowed"
                 }), 400 
             book.filename = f'{book.id}.{file_extension}'
 

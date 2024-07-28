@@ -33,7 +33,7 @@
             
             <div v-else-if="issued" class="row justify-content-end">
               <div class="col-auto">
-                <button class="btn btn-primary" @click="handleReadBook">Read Book</button>
+                <router-link class="btn btn-primary" :to="{name: 'ReadBookView', params: {bookId : book.id}}">Read Book</router-link>
               </div>
               <div class="col-auto">
                 <button class="btn btn-success" @click="handleAddComment">Add Feedback</button>
