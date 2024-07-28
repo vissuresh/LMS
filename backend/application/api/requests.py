@@ -124,6 +124,11 @@ def request_book(book_id):
     
     
     book = Book.query.get_or_404(book_id)
+    if book.copies == book.issued:
+        return jsonify({
+            "message" : "Book unavailable. Please check again later."
+        }), 400
+    
     user_id = current_user.id 
 
     existing_request = BookRequest.query.filter_by(user_id = user_id, book_id = book_id).first()
