@@ -15,6 +15,7 @@ import LibrarianSectionAddView from '@/views/librarian/section/LibrarianSectionA
 import LibrarianBookRequestsView from '@/views/librarian/request/LibrarianBookRequestsView.vue'
 import LibrarianBookIssuesView from '@/views/librarian/issue/LibrarianBookIssuesView.vue'
 import SectionsView from '@/views/SectionsView.vue'
+import ProfileView from '@/views/ProfileView.vue'
 import store from '@/store'
 import axios from 'axios'
 
@@ -47,7 +48,7 @@ const bookRoutes = [
 
   {
     path: '/books/:id',
-    name: 'book',
+    name: 'BookView',
     components: {
       default: BookView,
       navbar: Navbar
@@ -55,6 +56,18 @@ const bookRoutes = [
     props: true,
   },
 ]
+
+const profileRoutes = [
+  {
+    path: '/profile',
+    name: 'ProfileView',
+    meta: { roles: ['user'] },
+    components: {
+      default: ProfileView,
+      navbar: Navbar
+    },
+  },
+];
 
 
 const sectionRoutes = [
@@ -187,7 +200,7 @@ const authRoutes = [
 
 
 const routes = [
-  defaultRoute, ...authRoutes, ...bookRoutes, ...librarianRoutes, ...sectionRoutes
+  defaultRoute, ...authRoutes, ...bookRoutes, ...librarianRoutes, ...sectionRoutes, ...profileRoutes
 ]
 
 const router = createRouter({

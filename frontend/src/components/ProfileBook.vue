@@ -1,4 +1,5 @@
-2<template>
+<template>
+    <CommentModal :showModal="showModal" @submitComment="submitComment" @cancelComment="cancelComment" />
     <div class="card mb-4">
       <div class="row g-0">
         <div class="col-md-4">
@@ -7,17 +8,38 @@
         </div>
         <div class="col-md-8">
           <div class="card-body">
-            <h5 class="card-title">{{ book.name }}</h5>
+            <h5 class="card-title">
+              <router-link :to="{name: 'BookView', params: {id: book.id}}">
+                {{ book.name }}
+              </router-link>
+            </h5>
             <h6 class="card-subtitle mb-2 text-muted">{{ book.author }}</h6>
+            <div class="d-flex align-items-center mb-3">
+              <span class="badge bg-success me-2">{{ book.rating }}</span>
+              <div class="text-warning">
+                <i v-for="n in 5" :key="n" :class="n <= book.rating ? 'bi bi-star-fill' : n <= Math.ceil(book.rating) ? 'bi bi-star-half' : 'bi bi-star'"></i>
+              </div>
+            </div>
             <h6 v-if="book.section" class="card-subtitle mb-2">Section: <router-link :to="{name: 'BooksView', query: {section_id: book.section.id}}">
               {{ book.section.name }}
             </router-link></h6>
             <h6 v-else>Unspecified</h6>
-            <button v-if="bookRequestedByUser" class="btn btn-danger" @click="handleDeleteRequest">Delete Request</button>
-            <div class="row justify-content-end">
+            
+            <div v-if="requested" class="row justify-content-end">
               <div class="col-auto">
-                <button v-if="issued" class="btn btn-primary" @click="handleReadBook">Read Book</button>
-                <button v-else class=""></button>
+                <button class="btn btn-danger" @click="handleDeleteRequest">Delete Request</button>
+              </div>
+            </div>
+            
+            <div v-else-if="issued" class="row justify-content-end">
+              <div class="col-auto">
+                <button class="btn btn-primary" @click="handleReadBook">Read Book</button>
+              </div>
+              <div class="col-auto">
+                <button class="btn btn-success" @click="handleAddComment">Add Feedback</button>
+              </div>
+              <div class="col-auto">
+                <button class="btn btn-danger" @click="handleReturnBook">Return Book</button>
               </div>
             </div>
 
@@ -29,24 +51,10 @@
   
 <script setup>
 import { defineProps, onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
 import { createInfoModal } from '@/services/modal';
+import CommentModal from '@/components/CommentModal.vue';
 import axios from 'axios';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-
-
-
-const route = useRoute();
-const bookId = route.params.id;
-
-const userBooks = ref([]);
-const userRequests = ref([]);
-
-const bookIssuedToUser = ref(null);
-const bookRequestedByUser = ref(null);
-
-const requestId = ref(null);
-const issueId = ref(null);
 
 
 const props = defineProps({
@@ -54,9 +62,20 @@ const props = defineProps({
         type: Object,
         required: true
     },
-    issued: Boolean,
-});
+    issued: {
+        type: Boolean,
+        required: false
+    },
+    requested: {
+        type: Boolean,
+        required: false
+    },
+    requestId: {
+        type: Number,
+        required: false
+    },
 
+});
 
 const showModal = ref(false);
 
@@ -78,7 +97,7 @@ const submitComment = async (data) => {
   
 
   try {
-    const response = await axios.post(`/books/${bookId}/comments`, data);
+    const response = await axios.post(`/books/${props.book.id}/comments`, data);
     modal = createInfoModal('Comment', 'Comment added successfully!');
   } catch (error) {
     if(error.response && error.response.data){
@@ -97,10 +116,9 @@ const cancelComment = () => {
 const handleReturnBook = async () => {
   let modal = null;
 
-  if(bookIssuedToUser.value === true) {
+  if(props.issued === true) {
     try {
-        const response = await axios.delete(`/issues/return/${bookId}`);
-        bookIssuedToUser.value = false;
+        const response = await axios.delete(`/issues/return/${props.book.id}`);
         modal = createInfoModal('Return', 'Book returned successfully!');
 
     } catch (error) {
@@ -116,30 +134,11 @@ const handleReturnBook = async () => {
     
 };
 
-const handleRequestBook = async () => {
-  let modal = null;
-
-    try {
-        const response = await axios.post(`/requests/${bookId}`);
-        bookRequestedByUser.value = true;
-        modal = createInfoModal('Request', 'Request successful!');
-
-    } catch (error) {
-        if(error.response && error.response.data){
-          modal = createInfoModal('Request', error.response.data.message);
-        } else {
-          modal = createInfoModal('Request', 'An error occurred.');
-        } 
-    }
-    modal.show();
-};
-
 const handleDeleteRequest = async () => {
   let modal = null;
 
     try {
-        const response = await axios.delete(`/requests/${requestId.value}`);
-        bookRequestedByUser.value = false;
+        const response = await axios.delete(`/requests/${props.requestId}`);
         modal = createInfoModal('Request', 'Request deleted successfully!');
 
     } catch (error) {
@@ -153,38 +152,6 @@ const handleDeleteRequest = async () => {
 };
 
 onMounted(async () => {
-
-  try {
-    const response = await axios.get('books/user');
-    userBooks.value = response.data;
-  } catch (error) {
-    console.error(error);
-  }
-
-  try {
-    const response = await axios.get('requests/user');
-    userRequests.value = response.data;
-  } catch (error) {
-    console.error(error);
-  }
-
-
-
-  for(let id of userBooks.value) {
-    if(id.toString() === bookId) {
-      bookIssuedToUser.value = true;
-      break;
-    }
-  }
-  for(let entry of userRequests.value) {
-    let book_id = entry.book_id.toString();
-    if(book_id === bookId) {
-      bookRequestedByUser.value = true;
-      requestId.value = entry.request_id;
-      break;
-    }
-  }
-
 
   var myModalEl = document.getElementById('infoModal');
     if (myModalEl) {

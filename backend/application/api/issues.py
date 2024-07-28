@@ -6,6 +6,7 @@ from application.validation import check_librarian
 from application import db
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import and_
+from datetime import datetime
 
 issue_bp = Blueprint(
     'issues',
@@ -39,6 +40,7 @@ def get_all_issues():
             }), 404
         issue_query = issue_query.filter(BookIssue.user_id == user.id)
 
+    issue_query = issue_query.filter(BookIssue.expiry > datetime.now())
     issue_query = issue_query.order_by(BookIssue.issued_at.desc())
 
     try:

@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 from sqlalchemy import and_
 import os
 import json
+from datetime import datetime
 
 book_bp = Blueprint(
     'books',
@@ -97,7 +98,10 @@ def get_book(book_id):
 @book_bp.get('/user')
 @jwt_required()
 def get_user_books():
-    return jsonify([book.id for book in current_user.books]), 200
+    user_issues = BookIssue.query.filter(and_(BookIssue.user_id == current_user.id,BookIssue.expiry > datetime.now() )).all()
+
+    books = [Book.query.get(issue.book_id) for issue in user_issues]
+    return jsonify(BookSchema().dump(books, many=True)), 200
 
 
 

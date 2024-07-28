@@ -138,3 +138,9 @@ onMounted(async () => {
 });
 
 </script>
+
+<style scoped>
+.container-fluid {
+    width: 97vw;
+}
+</style>

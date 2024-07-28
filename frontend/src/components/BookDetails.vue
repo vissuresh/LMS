@@ -182,14 +182,14 @@ onMounted(async () => {
 
 
 
-  for(let id of userBooks.value) {
-    if(id.toString() === bookId) {
+  for(let book of userBooks.value) {
+    if(book.id.toString() === bookId) {
       bookIssuedToUser.value = true;
       break;
     }
   }
   for(let entry of userRequests.value) {
-    let book_id = entry.book_id.toString();
+    let book_id = entry.book.id.toString();
     if(book_id === bookId) {
       bookRequestedByUser.value = true;
       requestId.value = entry.request_id;
