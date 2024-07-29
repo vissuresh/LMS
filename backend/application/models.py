@@ -12,6 +12,7 @@ class User(db.Model):
     email = db.Column(db.String(), nullable = False, unique = True)
     password_hash = db.Column(db.String(128), nullable = False)
     name = db.Column(db.String(), nullable = False)
+    librarian = db.Column(db.Boolean, default = False)
 
 
     requests = db.relationship('BookRequest', backref = 'user', cascade = 'all, delete')
@@ -29,6 +30,15 @@ class User(db.Model):
     @classmethod
     def get_user_by_email(cls, email):
         return cls.query.filter_by(email = email).first()
+
+    @classmethod
+    def get_all_librarian_emails(cls):
+        return [librarian.email for librarian in cls.query.filter_by(librarian = True).all()]
+
+    @classmethod
+    def get_librarian_by_email(cls, email):
+        return cls.query.filter_by(email = email, librarian = True).first()  
+    
     
     def save(self):
         db.session.add(self)
@@ -37,28 +47,6 @@ class User(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
-
-
-class Librarian(db.Model):
-    id = db.Column(db.Integer, default = 1, primary_key = True)
-    user_id = db.Column(db.String(), db.ForeignKey('user.id'))
-
-    user = db.relationship('User')
-
-    @classmethod
-    def get_all_librarians(cls):
-        librarian_objects = cls.query.all()
-        return [librarian.user.email for librarian in librarian_objects]
-    
-
-    @classmethod
-    def get_librarian_by_email(cls, email):
-        return cls.query.filter_by(user_id = User.get_user_by_email(email).id).first()
-
-
-    def revoke_access(self, book_issue_id):
-        book_issue = db.get_or_404(BookIssue, book_issue_id)
-        book_issue.delete()
 
 
 

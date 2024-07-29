@@ -1,31 +1,21 @@
 from application import app
 
 with app.app_context():
-    from application.models import User, Librarian
-    from application import db
+    from application.models import User
     
-    print("========= Updating librarian table =========")
-    
-    librarian_emails = app.config['LIBRARIAN_EMAILS']
+    librarian = app.config['LIBRARIAN']
+    librarian_email = librarian["email"]
+    librarian_object = User.get_librarian_by_email(librarian_email)
 
-    current_librarians = Librarian.get_all_librarians()
-    emails_to_add = set(librarian_emails) - set(current_librarians)
-    emails_to_remove = set(current_librarians) - set(librarian_emails)
-    
-    for email in emails_to_add:
-        user = User.get_user_by_email(email)
-        if user:
-            new_librarian = Librarian(user_id=user.id)
-            db.session.add(new_librarian)
-    
-    for email in emails_to_remove:
-        librarian_to_remove = Librarian.get_librarian_by_email(email)
-        if librarian_to_remove:
-            db.session.delete(librarian_to_remove)
-    
-    db.session.commit()
+    if librarian_object is None:
+        print("===== Creating Librarian Account =======")
+        librarian_name = librarian["name"]
+        librarian_password = librarian["password"]
+
+        librarian_object = User(name=librarian_name, email = librarian_email, librarian = True)
+        librarian_object.set_password(librarian_password)
+        librarian_object.save()
 
 
 if __name__ == '__main__':
     app.run(port=5000)
-    

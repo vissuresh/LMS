@@ -1,3 +1,5 @@
+from celery.schedules import crontab
+
 class Config(object):
     SECRET_KEY = "MySecretKey"
     DEBUG = True
@@ -16,6 +18,22 @@ class Config(object):
     JWT_COOKIE_SECURE = False
     JWT_COOKIE_SAMESITE = None
 
-    LIBRARIAN_EMAILS =[
-        "new@gmail.com",
-    ]
+    LIBRARIAN = {
+        "email": "wiz@gmail.com",
+        "password": "wiz",
+        "name": "Wiz",
+    }
+
+    CELERY = {
+        "broker_url": "redis://127.0.0.1:6379/0",
+        "result_backend": "redis://127.0.0.1:6379/1",
+        "task_ignore_result": True,
+        "beat_schedule": {
+            "send-daily-reminders": {
+                "task": "application.tasks.send_daily_emails",
+                "schedule": crontab(hour=23, minute=41)
+            }
+        },
+        "beat_max_loop_interval": 5,
+        "timezone": "Asia/Kolkata"
+    }

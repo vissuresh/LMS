@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: b0f1c513bd6c
+Revision ID: 788cfbfd04d6
 Revises: 
-Create Date: 2024-07-07 20:47:27.630664
+Create Date: 2024-07-28 19:49:51.673190
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'b0f1c513bd6c'
+revision = '788cfbfd04d6'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -22,8 +22,9 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=64), nullable=False),
     sa.Column('date_created', sa.Date(), nullable=False),
-    sa.Column('desc', sa.String(length=32), nullable=True),
-    sa.PrimaryKeyConstraint('id')
+    sa.Column('desc', sa.String(length=128), nullable=True),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('name')
     )
     op.create_table('token_blocklist',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -36,28 +37,24 @@ def upgrade():
     sa.Column('email', sa.String(), nullable=False),
     sa.Column('password_hash', sa.String(length=128), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
+    sa.Column('librarian', sa.Boolean(), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
     )
     op.create_table('book',
-    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('name', sa.String(length=64), nullable=False),
     sa.Column('author', sa.String(length=64), nullable=False),
     sa.Column('desc', sa.String(length=128), nullable=True),
+    sa.Column('date_created', sa.Date(), nullable=True),
     sa.Column('section_id', sa.Integer(), nullable=True),
     sa.Column('picture', sa.LargeBinary(), nullable=True),
     sa.Column('copies', sa.Integer(), nullable=False),
     sa.Column('issued', sa.Integer(), nullable=False),
-    sa.Column('path', sa.String(length=128), nullable=False),
+    sa.Column('filename', sa.String(length=128), nullable=True),
     sa.Column('rating', sa.Float(), nullable=False),
     sa.CheckConstraint('issued <= copies', name='check_book_available_constraint'),
     sa.ForeignKeyConstraint(['section_id'], ['section.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_table('librarian',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.String(), nullable=True),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('book_issue',
@@ -84,7 +81,8 @@ def upgrade():
     sa.Column('user_id', sa.String(), nullable=True),
     sa.Column('book_id', sa.Integer(), nullable=True),
     sa.Column('comment', sa.String(length=128), nullable=False),
-    sa.Column('rating', sa.Integer(), nullable=False),
+    sa.Column('rating', sa.Float(), nullable=False),
+    sa.Column('date_created', sa.Date(), nullable=True),
     sa.ForeignKeyConstraint(['book_id'], ['book.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -97,7 +95,6 @@ def downgrade():
     op.drop_table('feedback')
     op.drop_table('book_request')
     op.drop_table('book_issue')
-    op.drop_table('librarian')
     op.drop_table('book')
     op.drop_table('user')
     op.drop_table('token_blocklist')
