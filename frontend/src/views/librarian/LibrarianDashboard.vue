@@ -52,14 +52,22 @@
         </div>
       </div>
 
+      <hr />
+
+      <RatingGraph/>
+
     </div>
 </template>
 
 
 <script setup>
-import { onMounted, } from 'vue';
+import { onMounted, ref } from 'vue';
 import { createInfoModal, createCSVModal } from '@/services/modal';
 import axios from 'axios';
+import RatingGraph from '@/components/RatingGraph.vue';
+
+const chartData = ref({});
+const chartOptions = ref({});
 
 
 const exportCSV = async () => {
@@ -101,6 +109,7 @@ onMounted(async () => {
   };
 
 
+  await getRatingData();
 
 
   var myModalEl = document.getElementById('infoModal');
