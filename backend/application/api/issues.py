@@ -78,7 +78,7 @@ def revoke_book(issue_id):
     book = Book.query.get(issue.book_id)
     
     book.issued -=1
-    db.session.delete(issue)
+    issue.expiry = datetime.now()
 
     try:
         db.session.commit()
@@ -108,7 +108,7 @@ def return_book(book_id):
     book = Book.query.get(book_id)
 
     book.issued -=1
-    db.session.delete(issue)
+    issue.expiry = datetime.now()
 
     try:
         db.session.commit()

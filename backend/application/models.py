@@ -53,7 +53,7 @@ class User(db.Model):
 class TokenBlocklist(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     jti = db.Column(db.String(), nullable = False)
-    created_at = db.Column(db.DateTime(), default = datetime.utcnow)
+    created_at = db.Column(db.DateTime(), default = datetime.now)
 
     def __repr__(self):
         return f"<Token {self.jti}"
@@ -147,8 +147,8 @@ class BookIssue(db.Model):
     user_id = db.Column(db.String(), db.ForeignKey('user.id'))
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'))
 
-    issued_at = db.Column(db.DateTime(), nullable = False, default = datetime.utcnow)
-    expiry = db.Column(db.DateTime(), nullable = False,default=lambda: datetime.utcnow() + timedelta(days=7))
+    issued_at = db.Column(db.DateTime(), nullable = False, default = datetime.now)
+    expiry = db.Column(db.DateTime(), nullable = False,default=lambda: datetime.now() + timedelta(days=7))
 
 
     def save(self):
@@ -179,7 +179,7 @@ class BookRequest(db.Model):
     user_id = db.Column(db.String(), db.ForeignKey('user.id'))
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'))
 
-    requested_at = db.Column(db.DateTime(), nullable = False, default = datetime.utcnow)
+    requested_at = db.Column(db.DateTime(), nullable = False, default = datetime.now)
 
     book = db.relationship('Book', backref='requests')
 

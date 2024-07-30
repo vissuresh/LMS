@@ -1,8 +1,5 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, current_user
-from application import celery_app
-from application.tasks import add
-from celery.result import AsyncResult
 from application.models import Book, BookRequest, BookIssue, User
 from application.schemas import IssueSchema, RequestSchema, BookSchema
 from application.validation import check_librarian
@@ -181,17 +178,3 @@ def delete_request(request_id):
     
     response, status_code = book_request.delete()
     return response, status_code
-
-
-@app.route('/add/<int:x>/<int:y>')
-def add_numbers(x, y):
-    result = add.delay(x, y)
-    return jsonify({"task_id": result.id, "status": "Task submitted!"})
-
-@app.route('/result/<task_id>')
-def get_result(task_id):
-    result = AsyncResult(task_id, app=celery_app)
-    if result.ready():
-        return jsonify({"task_id": task_id, "status": result.status, "result": result.result})
-    else:
-        return jsonify({"task_id": task_id, "status": result.status, "result": None})

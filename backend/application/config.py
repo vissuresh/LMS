@@ -24,6 +24,8 @@ class Config(object):
         "name": "Wiz",
     }
 
+    REDIS_URL = 'redis://127.0.0.1:6379'
+
     CELERY = {
         "broker_url": "redis://127.0.0.1:6379/0",
         "result_backend": "redis://127.0.0.1:6379/1",
@@ -31,7 +33,11 @@ class Config(object):
         "beat_schedule": {
             "send-daily-reminders": {
                 "task": "application.tasks.send_daily_emails",
-                "schedule": crontab(hour=23, minute=41)
+                "schedule": crontab(hour=10, minute=57)
+            },
+            "generate_activity_report": {
+                "task": "application.tasks.generate_activity_report",
+                "schedule": crontab(hour=13, minute=41)
             }
         },
         "beat_max_loop_interval": 5,
