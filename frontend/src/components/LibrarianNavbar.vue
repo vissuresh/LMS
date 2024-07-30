@@ -1,4 +1,5 @@
 <template>
+  <ExportModal />
   <nav class="navbar navbar-expand-lg bg-light mb-5">
     <div class="container-fluid">
       <a class="navbar-brand" href="#">E-Library : Librarian</a>
@@ -26,6 +27,7 @@ import axios from 'axios';
 import { createInfoModal } from '@/services/modal';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
+import ExportModal from '@/components/ExportModal.vue';
 
 const router = useRouter();
 const store = useStore();

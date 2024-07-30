@@ -1,5 +1,4 @@
 <template>
-    <ExportModal />
     <div class="container">
       <div class="row mb-5">
         <div class="col-10">
@@ -53,7 +52,6 @@
         </div>
       </div>
 
-
     </div>
 </template>
 
@@ -61,7 +59,6 @@
 <script setup>
 import { onMounted, } from 'vue';
 import { createInfoModal, createCSVModal } from '@/services/modal';
-import ExportModal from '@/components/ExportModal.vue';
 import axios from 'axios';
 
 
@@ -98,19 +95,9 @@ onMounted(async () => {
     }
   });
 
-  // eventSource.onmessage = (event) => {
-  //   const data = JSON.parse(event.data);
-  //   console.log("Task status: ", data);
-  //   if (data.type === 'task_status' && data.status === 'SUCCESS') {
-  //       const status = 'CSV generation complete!';
-  //       const downloadUrl = `data:text/csv;charset=utf-8,${encodeURIComponent(data.csv_data)}`;
-
-  //       createInfoModal(status, `Click here to download: ${downloadUrl}`).show()
-  //   }
-  // }
-
   eventSource.onerror = function(event) {
     console.error('EventSource failed:', event);
+    createInfoModal('Error', 'An error occurred during export task, try again.').show();
   };
 
 

@@ -3,11 +3,10 @@ from flask_jwt_extended import jwt_required, current_user
 from application.models import Book, BookIssue, User
 from application.schemas import IssueSchema
 from application.validation import check_librarian
-from application import db, app, serializer
+from application import db
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import and_
-from datetime import datetime, timedelta
-from itsdangerous import URLSafeTimedSerializer
+from datetime import datetime
 import os
 
 

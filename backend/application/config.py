@@ -26,6 +26,12 @@ class Config(object):
 
     REDIS_URL = 'redis://127.0.0.1:6379'
 
+    CACHE_TYPE = "RedisCache"
+
+    CACHE_REDIS_URL = 'redis://127.0.0.1:6379'
+
+    CACHE_DEFAULT_TIMEOUT = 300
+
     CELERY = {
         "broker_url": "redis://127.0.0.1:6379/0",
         "result_backend": "redis://127.0.0.1:6379/1",

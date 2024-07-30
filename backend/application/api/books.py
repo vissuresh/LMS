@@ -1,9 +1,10 @@
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, current_user
+from flask_caching import CachedResponse
 from application.models import Book, BookIssue, Feedback
 from application.schemas import BookSchema,BookShortSchema, FeedbackSchema
 from application.validation import check_librarian
-from application import db
+from application import db, cache
 from werkzeug.utils import secure_filename
 from sqlalchemy import and_
 import os
@@ -25,6 +26,7 @@ def get_all_books_short():
 
 @book_bp.get('/all')
 @jwt_required()
+@cache.cached(query_string=True)
 def get_all_books():
     
     page = request.args.get('page', type=int)
@@ -66,24 +68,31 @@ def get_all_books():
                 "error": "page or per-page out of bounds"
             }), 400
 
-        result = BookSchema().dump(books, many=True)    
-
-        return jsonify({    
+        result = BookSchema().dump(books, many=True)
+        response = jsonify({    
             "books" : result,
-
             "pagination": {
                 "page": books.page,
                 "per_page": books.per_page,
                 "total": books.total,
                 "pages": books.pages
             }
-        }), 200
-    
+        })
     else:
         result = BookSchema().dump(book_query.all(), many=True)
-        return jsonify({
+        response = jsonify({
             "books": result
-        }), 200
+        })
+
+
+
+    if not current_user.librarian:
+        return CachedResponse(
+            response=response,
+            timeout=300,
+        ), 200
+    else:
+        return response, 200
 
 
 @book_bp.get('/<int:book_id>')
