@@ -6,11 +6,9 @@ from email.mime.multipart import MIMEMultipart
 from application.models import User, BookIssue, BookRequest, Book, Section
 from datetime import datetime, timedelta
 from jinja2 import Environment, FileSystemLoader
-from application import app
-from io import StringIO, BytesIO
+from io import StringIO
 import csv
-from flask import jsonify, send_file, Blueprint
-from celery.result import AsyncResult
+from flask import jsonify, Blueprint
 from flask_sse import sse
 import time
 
@@ -23,7 +21,6 @@ task_bp = Blueprint(
 
 @shared_task(ignore_result=False)
 def send_daily_emails():
-    print("Sending daily emails")
     logging.info("Sending daily emails")
     users = User.query.filter(User.librarian == False).all()
 
@@ -35,41 +32,37 @@ def send_daily_emails():
         from_email = smtp_username
         subject = 'Daily Reminder - LMS'
 
-        msg = MIMEMultipart()
-        msg['From'] = from_email
-        msg['Subject'] = subject
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            for user in users:
+                if len(user.books) == 0:
+                    continue
 
-        server = smtplib.SMTP(smtp_server, smtp_port)
+                body = ''
 
-        for user in users:
-            if len(user.books) == 0:
-                continue
+                for i, book in enumerate(user.books):
+                    issue = BookIssue.query.filter_by(user_id=user.id, book_id=book.id).first()
+                    if issue.expiry > datetime.now() :
+                        formatted_expiry = issue.expiry.strftime("%d - %b - %Y - %H:%M")
+                        body += f"{i+1}. {book.name} ::\t {formatted_expiry}\n"
 
-            body = ''
+                if body:
+                    to_email = user.email
+                    body = f"Hello {user.name}.\nThis is your daily reminder. Your following books expire soon:\n\n" + body
 
-            for i in range(len(user.books)):
-                book = user.books[i]
-                issue = BookIssue.query.filter_by(user_id = user.id, book_id = book.id).first()
-                if issue.expiry > datetime.now():
-                    formatted_expiry = issue.expiry.strftime("%d - %b - %Y - %H:%M") 
-                    body += f"{i+1}. {book.name} ::\t {formatted_expiry}\n"
+                    msg = MIMEMultipart()
+                    msg['From'] = from_email
+                    msg['To'] = to_email
+                    msg['Subject'] = subject
+                    msg.attach(MIMEText(body, 'plain'))
 
-            if body != '':
-                to_email = user.email
+                    server.sendmail(from_email, to_email, msg.as_string())
+                    logging.info(f"Email sent to user: {to_email}")
 
-                body = f"Hello {user.name}.\nThis is your daily reminder. Your following books expire soon:\n\n" + body
-                msg.attach(MIMEText(body, 'plain'))
-                msg['To'] = to_email
-                server.sendmail(from_email, to_email, msg.as_string())
-                logging.info(f"Email sent to user: {to_email}")
-
-        server.quit()
         return True
 
     except Exception as e:
         logging.error(f"Failed to send daily emails: {e}")
         return False
-    
 
 
 @shared_task(ignore_result=False)

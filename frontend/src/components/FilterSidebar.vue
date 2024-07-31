@@ -2,7 +2,7 @@
 
     <div class="card text-center">
       <div class="card-header">
-        Select Filters
+        <h4>Select Filters</h4>
       </div>
       <div class="card-body">
         <ul class="list-group list-group-flush">

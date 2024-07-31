@@ -1,5 +1,5 @@
 <template>
-    <ConfirmModal :showModal="showModal" :title="`Delete Section`" :message="confirmModalMessage" @deleteConfirmed="onConfirmed" @deleteCancelled="onCancelled" />
+    <ConfirmModal :showModal="showModal" :title="`Delete Section`" :message="confirmModalMessage" @confirmed="onConfirmed" @cancelled="onCancelled" />
     <Loading :isLoading="isLoading" />
     <div class="container-fluid  custom-container">
         <div class="d-flex">
@@ -133,6 +133,7 @@ const deleteSection = (section) => {
 
 
 const onConfirmed = async () => {
+    console.log('Deleting section with ID:', currentSectionIdToDelete.value);
     showModal.value = false;
     isLoading.value = true;
     let modal = null;

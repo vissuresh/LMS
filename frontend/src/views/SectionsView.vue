@@ -60,7 +60,7 @@ const fetchSections = async (page) => {
 
     } catch (error) {
         console.error(error);
-        if(error.response && error.response.data){
+        if(error.response && error.response.data && error.response.data.message){
             modal = createInfoModal("Error", error.response.data.message);
         } else{
             modal = createInfoModal("Error", "An error occurred.");

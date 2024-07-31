@@ -15,7 +15,6 @@ class UserSchema(ma.SQLAlchemySchema):
 
 
 
-
 class SectionSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Section

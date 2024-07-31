@@ -26,7 +26,7 @@ def get_all_books_short():
 
 @book_bp.get('/all')
 @jwt_required()
-# @cache.cached(query_string=True, timeout=1)
+@cache.cached(query_string=True, timeout=30)
 def get_all_books():
     
     page = request.args.get('page', type=int)
@@ -85,14 +85,11 @@ def get_all_books():
         })
 
 
-
-    # if not current_user.librarian:
-    #     return CachedResponse(
-    #         response=response,
-    #         timeout=1,
-    #     ), 200
-    # else:
-    #     return response, 200
+    if not current_user.librarian:
+        return CachedResponse(
+            response=response,
+            timeout=30
+        ), 200
 
     return response, 200
 

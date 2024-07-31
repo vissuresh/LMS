@@ -1,6 +1,6 @@
 <template>
   <ExportModal />
-  <nav class="navbar navbar-expand-lg bg-light mb-5">
+  <nav class="navbar navbar-expand-lg mb-5">
     <div class="container-fluid">
       <a class="navbar-brand" href="#">E-Library : Librarian</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,15 +61,17 @@ const handleLogout = async () => {
 nav {
   padding: 12px;
   margin-bottom: 10px;
+  background-color: #405699;
 }
 
 nav .navbar-brand {
   font-size: xx-large;
+  color: #edeff5;
 }
 
 nav a {
   font-weight: bold;
-  color: #2c3e50;
+  color: #edeff5;
   font-size: larger;
 }
 

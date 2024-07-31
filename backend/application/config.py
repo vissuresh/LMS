@@ -39,11 +39,11 @@ class Config(object):
         "beat_schedule": {
             "send-daily-reminders": {
                 "task": "application.tasks.send_daily_emails",
-                "schedule": crontab(hour=10, minute=57)
+                "schedule": crontab(hour=21, minute=42)
             },
             "generate_activity_report": {
                 "task": "application.tasks.generate_activity_report",
-                "schedule": crontab(hour=13, minute=41)
+                "schedule": crontab(hour=21, minute=42)
             }
         },
         "beat_max_loop_interval": 5,

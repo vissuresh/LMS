@@ -1,10 +1,10 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required
-
+from flask_jwt_extended import jwt_required, current_user
+from flask_caching import CachedResponse
 from application.models import Section, Book
 from application.schemas import SectionSchema, BookSchema
 from application.validation import check_librarian
-from application import db
+from application import db, cache
 from sqlalchemy.exc import IntegrityError
 import json
 
@@ -16,6 +16,7 @@ section_bp = Blueprint(
 
 @section_bp.get('/all')
 @jwt_required()
+@cache.cached(query_string=True, timeout=30)
 def get_all_sections():    
     
     page = request.args.get('page', type=int)
@@ -36,31 +37,38 @@ def get_all_sections():
 
     if page is None:
         result = SectionSchema().dump(section_query.all(), many=True)
-        return jsonify({"sections": result}), 200
+        response = jsonify({"sections": result})
+
+    else:
+        try:
+            sections = section_query.paginate(
+                page = page,
+                per_page = per_page
+            )
+        except:
+            return jsonify({
+                "error": "page or per-page out of bounds"
+            }), 400
+
+        result = SectionSchema().dump(sections, many=True)    
+        response = jsonify({
+            "sections" : result,
+
+            "pagination": {
+                "page": sections.page,
+                "per_page": sections.per_page,
+                "total": sections.total,
+                "pages": sections.pages
+            }
+        })
+
+    if not current_user.librarian:
+        return CachedResponse(
+            response=response,
+            timeout=30,
+        ), 200
     
-
-    try:
-        sections = section_query.paginate(
-            page = page,
-            per_page = per_page
-        )
-    except:
-        return jsonify({
-            "error": "page or per-page out of bounds"
-        }), 400
-
-    result = SectionSchema().dump(sections, many=True)    
-
-    return jsonify({
-        "sections" : result,
-
-        "pagination": {
-            "page": sections.page,
-            "per_page": sections.per_page,
-            "total": sections.total,
-            "pages": sections.pages
-        }
-    }), 200
+    return response, 200
 
 
 

@@ -18,7 +18,7 @@
 
 
 <script setup>
-import { defineProps, ref } from 'vue';
+import { defineProps, onMounted, ref, watch } from 'vue';
 
 const props = defineProps({
   currentPage: Number,
@@ -30,13 +30,30 @@ const startPage = ref(1);
 const endPage = ref(0);
 endPage.value = Math.min(3, props.totalPages);
 
-if (props.currentPage > endPage.value) {
+
+const updatePages = () => {
+  endPage.value = Math.min(3, props.totalPages);
+
+  if (props.currentPage > endPage.value) {
     startPage.value += 3;
     endPage.value = Math.min(endPage.value + 3, props.totalPages);
-} else if (props.currentPage < startPage.value) {
+  } else if (props.currentPage < startPage.value) {
     startPage.value -= 3;
     endPage.value = Math.min(endPage.value, props.currentPage);
-}
+  }
+};
+
+onMounted(() => {
+  updatePages();
+});
+
+
+watch(
+  () => props.totalPages,
+  () => {
+    updatePages();
+  }
+);
 </script>
 
 

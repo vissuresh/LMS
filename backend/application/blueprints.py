@@ -8,11 +8,9 @@ from application.api.requests import request_bp
 from application.api.issues import issue_bp
 from application.tasks import task_bp
 from application.api.graphs import graphs_bp
-    
 from flask_sse import sse
 
 
-# Register blueprints
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(user_bp, url_prefix='/users')
 app.register_blueprint(book_bp, url_prefix='/books')

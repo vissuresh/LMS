@@ -15,10 +15,6 @@ from flask_jwt_extended import (create_access_token,
 
 auth_bp = Blueprint('auth', __name__)
 
-
-# where is current_user maintained? Any Session table?
-
-
 @auth_bp.post('/register')
 @require_keys('email', 'name', 'password')
 def register_user():    
