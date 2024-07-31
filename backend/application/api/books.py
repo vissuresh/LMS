@@ -26,7 +26,7 @@ def get_all_books_short():
 
 @book_bp.get('/all')
 @jwt_required()
-@cache.cached(query_string=True)
+# @cache.cached(query_string=True, timeout=1)
 def get_all_books():
     
     page = request.args.get('page', type=int)
@@ -86,13 +86,15 @@ def get_all_books():
 
 
 
-    if not current_user.librarian:
-        return CachedResponse(
-            response=response,
-            timeout=300,
-        ), 200
-    else:
-        return response, 200
+    # if not current_user.librarian:
+    #     return CachedResponse(
+    #         response=response,
+    #         timeout=1,
+    #     ), 200
+    # else:
+    #     return response, 200
+
+    return response, 200
 
 
 @book_bp.get('/<int:book_id>')
@@ -150,11 +152,11 @@ def create_book():
     file.save(os.path.join(books_dir, new_book.filename))
     try:
         new_book.save()
-    except:
+    except Exception as e:
         db.session.rollback()
         os.remove(os.path.join(books_dir, new_book.filename))
 
-        return jsonify({"message": "An error occurred"}), 400
+        return jsonify({"message": "An error occurred: "+ {str(e)}}), 400
     return jsonify({"message": "success"}), 201
 
 
@@ -214,8 +216,13 @@ def update_book(book_id):
 def delete_book(book_id):
     book = Book.query.get_or_404(book_id)
 
+    books_dir = current_app.config['BOOKS_DIR']
+    filepath = os.path.join(books_dir, book.filename)
+    
     try:
         book.delete()
+        if os.path.exists(filepath):
+            os.remove(filepath)
     except:
         db.session.rollback()
         return jsonify({"message": "An error occurred"}), 400

@@ -6,7 +6,7 @@
 
       <div class="col">
 
-        <div class="row mb-5">
+        <div class="row mb-2">
 
           <div class="col-5">
             <h1>Books</h1>
@@ -28,7 +28,7 @@
           </div>
 
           <div class="col-1">
-              <button class="btn btn-outline-primary" @click="fetchBooks()">Search</button>
+              <button class="btn btn-outline-primary" @click="fetchBooks(1)">Search</button>
           </div>
 
         </div>
@@ -40,6 +40,10 @@
           </div>
         </div>
 
+        <div v-if="totalPages > 0">
+          <Pagination :currentPage="currentPage" :totalPages="totalPages" :fetchData="fetchBooks" />
+        </div>
+
       </div>
 
     </div>
@@ -48,17 +52,20 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
-import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
 import Book from '@/components/Book.vue';
 import FilterSidebar from '@/components/FilterSidebar.vue';
 import Loading from '@/components/Loading.vue';
 import { createInfoModal } from '@/services/modal';
+import Pagination from '@/components/Pagination.vue';
 
-const store = useStore();
 const route = useRoute();
+
 const books = ref([]);
+const totalPages = ref(0);
+const currentPage = ref(1);
+
 const isLoading = ref(false);
 
 const searchQuery = ref('');
@@ -82,7 +89,7 @@ const handleApplyFilters = (filters) => {
   console.log('Applied Filters:', filters);
 };
 
-const fetchBooks = async () => {
+const fetchBooks = async (page) => {
     isLoading.value = true;
     let modal = null;
 
@@ -95,10 +102,13 @@ const fetchBooks = async () => {
                 rating: selectedRating.value
             }).toString();
 
-        const response = await axios.get(`books/all?&${queryParams}`);
+        const response = await axios.get(`books/all?page=${page}&per_page=12&${queryParams}`);
         isLoading.value = false;
 
         books.value = response.data.books;
+        totalPages.value = response.data.pagination.pages;
+        currentPage.value = response.data.pagination.page;
+
 
     } catch (error) {
         console.error(error);
@@ -119,10 +129,10 @@ watch(
   (newQuery) => {
     if (newQuery.section_id) {
       selectedSectionIds.value = [newQuery.section_id];
-      fetchBooks();
+      fetchBooks(1);
     } else {
       selectedSectionIds.value = [];
-      fetchBooks();
+      fetchBooks(1);
     }
   },
   { immediate: true }
@@ -133,7 +143,7 @@ onMounted(async () => {
   if(route.query && route.query.section_id){
     selectedSectionIds.value = [route.query.section_id];
   }
-  await fetchBooks();
+  await fetchBooks(currentPage.value);
   
 });
 

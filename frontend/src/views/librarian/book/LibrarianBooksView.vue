@@ -76,7 +76,6 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
-import { useStore } from 'vuex';
 import axios from 'axios';
 import Pagination from '@/components/Pagination.vue';
 import FilterSidebar from '@/components/FilterSidebar.vue';
@@ -85,7 +84,6 @@ import ConfirmModal from '@/components/ConfirmModal.vue';
 import Loading from '@/components/Loading.vue';
 import { useRoute } from 'vue-router';
 
-const store = useStore();
 const route = useRoute();
 const showModal = ref(false);
 const currentBookIdToDelete = ref(null);
@@ -110,7 +108,7 @@ const selectOption = (option) => {
 };
 
 const handleApplyFilters = (filters) => {
-  selectedSectionIds.value = filters.sectitotal_on_ids;
+  selectedSectionIds.value = filters.section_ids;
   selectedAuthors.value = filters.authors;
   selectedRating.value = filters.rating;
 

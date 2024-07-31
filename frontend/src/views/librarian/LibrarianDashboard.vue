@@ -66,9 +66,6 @@ import { createInfoModal, createCSVModal } from '@/services/modal';
 import axios from 'axios';
 import RatingGraph from '@/components/RatingGraph.vue';
 
-const chartData = ref({});
-const chartOptions = ref({});
-
 
 const exportCSV = async () => {
   let modal = null;
@@ -108,8 +105,6 @@ onMounted(async () => {
     createInfoModal('Error', 'An error occurred during export task, try again.').show();
   };
 
-
-  await getRatingData();
 
 
   var myModalEl = document.getElementById('infoModal');
